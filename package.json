@@ -9,11 +9,16 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@mikro-orm/core": "7.2.5",
+    "@mikro-orm/postgresql": "^7.2.5",
+    "dotenv": "^18.0.9",
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@mikro-orm/cli": "^7.2.5",
+    "@mikro-orm/migrations": "^7.2.5",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -22,7 +27,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   },
   "packageManager": "pnpm@12.11.2"
 }
