@@ -1,14 +1,15 @@
 import { cacheLife } from 'next/cache';
-import { getOrm } from '@/database/orm';
-import { Space } from '@/database/entities/space';
+import { getEntityClass, getOrm } from '@/database/orm';
+import type { Space } from '@/database/entities/space';
 
 export async function getActiveSpaces() {
   'use cache';
-
   cacheLife('minutes');
 
   const orm = await getOrm();
-  const spaces = await orm.em.fork().find(Space, { isActive: true });
+  const em = orm.em.fork();
+  const spaceEntity = getEntityClass<Space>(em, 'Space');
+  const spaces = await em.find<Space>(spaceEntity, { isActive: true });
 
   return spaces.map((space) => ({
     id: space.id,
@@ -21,18 +22,17 @@ export async function getActiveSpaces() {
 
 export async function getActiveSpaceById(id: string) {
   'use cache';
-
   cacheLife('minutes');
 
   const orm = await getOrm();
-  const space = await orm.em.fork().findOne(Space, {
-    id,
+  const em = orm.em.fork();
+  const spaceEntity = getEntityClass<Space>(em, 'Space');
+  const space = await em.findOne<Space>(spaceEntity, {
+    id: id as `${string}-${string}-${string}-${string}-${string}`,
     isActive: true,
   });
 
-  if (!space) {
-    return null;
-  }
+  if (!space) return null;
 
   return {
     id: space.id,

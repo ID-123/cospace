@@ -10,10 +10,12 @@ async function testSpace(): Promise<void> {
 
     const space = em.create(Space, {
       name: "Escritorio de prueba",
-      description: "Espacio creado desde TypeScript",
+      description: "Espacio creado para comprobar la conexión.",
       type: "desk",
       capacity: 1,
       pricePerHour: 10000,
+      isActive: true,
+      createdAt: new Date(),
     });
 
     em.persist(space);

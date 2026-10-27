@@ -6,15 +6,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:migrate": "mikro-orm migration:up --config ./src/mikro-orm.config.ts",
+    "db:seed:admin": "tsx src/database/seed-admin.ts"
   },
   "dependencies": {
     "@mikro-orm/core": "7.2.5",
     "@mikro-orm/postgresql": "^7.2.5",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^18.0.9",
+    "jose": "^6.2.13",
     "next": "16.4.3",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@mikro-orm/cli": "^7.2.5",
@@ -24,11 +29,11 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^9",
+    "eslint": "^10.13.0",
     "eslint-config-next": "16.4.3",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   },
-  "packageManager": "pnpm@12.11.2"
+  "packageManager": "pnpm@12.15.0"
 }

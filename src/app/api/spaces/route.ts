@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getOrm } from '@/database/orm';
-import { Space } from '@/database/entities/space';
+import { getEntityClass, getOrm } from '@/database/orm';
+import type { Space } from '@/database/entities/space';
 
 export async function GET(): Promise<NextResponse> {
   try {
     const orm = await getOrm();
     const em = orm.em.fork();
-    const spaces = await em.find(Space, {});
+    const spaceEntity = getEntityClass<Space>(em, 'Space');
+    const spaces = await em.find<Space>(spaceEntity, {});
 
     return NextResponse.json(spaces);
   } catch {
