@@ -2,26 +2,17 @@
 
 import Link from 'next/link';
 import { useLocale } from '@/components/shared/LocaleProvider';
+import type { ActiveSpace } from '@/database/queries/spaces';
+import { SpaceImage } from '@/features/spaces/components/SpaceImage';
 
-export function HomeContent({ isAuthenticated }: { isAuthenticated: boolean }) {
+export function HomeContent({
+  isAuthenticated,
+  spaces,
+}: {
+  isAuthenticated: boolean;
+  spaces: ActiveSpace[] | null;
+}) {
   const { t } = useLocale();
-  const spaceTypes = [
-    {
-      name: t('homeSpaceDesk'),
-      description: t('homeSpaceDeskDescription'),
-      number: '01',
-    },
-    {
-      name: t('homeSpaceMeeting'),
-      description: t('homeSpaceMeetingDescription'),
-      number: '02',
-    },
-    {
-      name: t('homeSpaceBooth'),
-      description: t('homeSpaceBoothDescription'),
-      number: '03',
-    },
-  ];
 
   return (
     <main className="home-page">
@@ -73,13 +64,32 @@ export function HomeContent({ isAuthenticated }: { isAuthenticated: boolean }) {
         </div>
 
         <div className="home-types__grid">
-          {spaceTypes.map((space) => (
-            <article className="home-type-card" key={space.number}>
-              <span className="home-type-card__number">{space.number}</span>
-              <h3>{space.name}</h3>
-              <p>{space.description}</p>
-            </article>
-          ))}
+          {spaces === null ? (
+            <p className="home-types__empty">{t('loadingSpaces')}</p>
+          ) : spaces.length > 0 ? (
+            spaces.map((space, index) => (
+              <Link
+                className="home-space-card"
+                href={`/spaces/${space.id}`}
+                key={space.id}
+              >
+                <SpaceImage
+                  className="home-space-card__image"
+                  type={space.type}
+                  name={space.name}
+                  width={640}
+                  height={360}
+                  eager={index === 0}
+                />
+                <div className="home-space-card__content">
+                  <h3>{space.name}</h3>
+                  <p>{space.description}</p>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <p className="home-types__empty">{t('noSpaces')}</p>
+          )}
         </div>
       </section>
     </main>

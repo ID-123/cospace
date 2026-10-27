@@ -8,12 +8,16 @@ export type ActiveSpace = Pick<
   'id' | 'name' | 'description' | 'type' | 'capacity' | 'pricePerHour'
 >;
 
-export async function getActiveSpaces(): Promise<ActiveSpace[]> {
+export async function getActiveSpaces(limit?: number): Promise<ActiveSpace[]> {
   await connection();
   const orm = await getOrm();
   const em = orm.em.fork();
   const spaceEntity = getEntityClass<Space>(em, 'Space');
-  const spaces = await em.find<Space>(spaceEntity, { isActive: true });
+  const spaces = await em.find<Space>(
+    spaceEntity,
+    { isActive: true },
+    limit === undefined ? {} : { limit, orderBy: { name: 'ASC' } },
+  );
 
   return spaces.map((space) => ({
     id: space.id,
