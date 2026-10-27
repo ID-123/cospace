@@ -35,46 +35,53 @@ async function SpaceDetail({ params }: SpaceDetailPageProps) {
         ← <LocalizedText translationKey="backToSpaces" />
       </Link>
 
-      <h1>{space.name}</h1>
-      <SpaceImage
-        className="space-detail__image"
-        type={space.type}
-        name={space.name}
-        width={1200}
-        height={675}
-        eager
-      />
-      <p>{space.description}</p>
+      <article className="space-detail__card">
+        <section className="space-detail__summary">
+          <SpaceImage
+            className="space-detail__image"
+            type={space.type}
+            name={space.name}
+            width={1200}
+            height={675}
+            eager
+          />
+          <h1>{space.name}</h1>
+          <p className="space-detail__description">{space.description}</p>
 
-      <section className="space-detail__information">
-        <p>
-          <span>
-            <LocalizedText translationKey="capacity" />
-          </span>{' '}
-          <strong>
-            {space.capacity}{' '}
-            <LocalizedText
-              translationKey={space.capacity === 1 ? 'person' : 'people'}
-            />
-          </strong>
-        </p>
+          <div className="space-detail__information">
+            <p>
+              <span>
+                <LocalizedText translationKey="capacity" />
+              </span>
+              <strong>
+                {space.capacity}{' '}
+                <LocalizedText
+                  translationKey={space.capacity === 1 ? 'person' : 'people'}
+                />
+              </strong>
+            </p>
 
-        <p>
-          <span>
-            <LocalizedText translationKey="hourlyPrice" />
-          </span>{' '}
-          <strong>
-            <LocalizedPrice amount={space.pricePerHour} />
-          </strong>
-        </p>
-      </section>
+            <p>
+              <span>
+                <LocalizedText translationKey="hourlyPrice" />
+              </span>
+              <strong>
+                <LocalizedPrice amount={space.pricePerHour} />
+              </strong>
+            </p>
+          </div>
+        </section>
 
-      <section className="space-detail__booking">
-        <h2>
-          <LocalizedText translationKey="bookSpace" />
-        </h2>
-        <ReservationForm spaceId={space.id} today={getBogotaDate(new Date())} />
-      </section>
+        <section className="space-detail__booking">
+          <h2>
+            <LocalizedText translationKey="bookSpace" />
+          </h2>
+          <ReservationForm
+            spaceId={space.id}
+            today={getBogotaDate(new Date())}
+          />
+        </section>
+      </article>
     </main>
   );
 }
