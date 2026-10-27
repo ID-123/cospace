@@ -7,25 +7,57 @@ import { Space } from './entities/space';
 
 const sampleSpaces = [
   {
-    name: 'Escritorio flexible',
-    description: 'Un espacio individual y cómodo para concentrarte.',
+    name: 'Escritorio Aurora',
+    legacyName: 'Escritorio flexible',
+    description: 'Puesto individual junto a ventanales, con silla ergonómica y conexión eléctrica.',
     type: 'desk' as const,
     capacity: 1,
-    pricePerHour: 10000,
+    pricePerHour: 12000,
   },
   {
-    name: 'Sala de reuniones',
-    description: 'Sala privada equipada para reuniones de equipo.',
+    name: 'Escritorio Terraza',
+    description: 'Estación de trabajo individual en una zona abierta con luz natural.',
+    type: 'desk' as const,
+    capacity: 1,
+    pricePerHour: 15000,
+  },
+  {
+    name: 'Escritorio Central',
+    legacyName: 'Escritorio de prueba',
+    description: 'Puesto individual cerca de las áreas comunes, con mesa amplia y acceso a tomas eléctricas.',
+    type: 'desk' as const,
+    capacity: 1,
+    pricePerHour: 11000,
+  },
+  {
+    name: 'Sala Nube',
+    legacyName: 'Sala de reuniones',
+    description: 'Sala privada para equipos pequeños, con pantalla y pizarra para reuniones.',
     type: 'meeting_room' as const,
     capacity: 8,
     pricePerHour: 50000,
   },
   {
-    name: 'Cabina de concentración',
-    description: 'Un espacio privado para llamadas y trabajo enfocado.',
+    name: 'Sala Horizonte',
+    description: 'Sala amplia para talleres y reuniones de equipo con pantalla de presentación.',
+    type: 'meeting_room' as const,
+    capacity: 12,
+    pricePerHour: 75000,
+  },
+  {
+    name: 'Cabina Órbita',
+    legacyName: 'Cabina de concentración',
+    description: 'Cabina insonorizada para videollamadas, entrevistas y trabajo que requiere privacidad.',
     type: 'booth' as const,
     capacity: 1,
-    pricePerHour: 15000,
+    pricePerHour: 18000,
+  },
+  {
+    name: 'Cabina Silencio',
+    description: 'Espacio individual aislado del ruido común, ideal para llamadas y concentración.',
+    type: 'booth' as const,
+    capacity: 1,
+    pricePerHour: 16000,
   },
 ];
 
@@ -100,20 +132,36 @@ async function seedAdmin(): Promise<void> {
     }
 
     let spacesCreated = 0;
+    let spacesUpdated = 0;
     for (const sampleSpace of sampleSpaces) {
-      const existingSpace = await em.findOne(Space, { name: sampleSpace.name });
-      if (existingSpace) continue;
+      const { legacyName, ...spaceDetails } = sampleSpace;
+      let existingSpace = await em.findOne(Space, { name: spaceDetails.name });
+      if (!existingSpace && legacyName) {
+        existingSpace = await em.findOne(Space, { name: legacyName });
+      }
+
+      if (existingSpace) {
+        if (existingSpace.name !== spaceDetails.name) {
+          existingSpace.name = spaceDetails.name;
+          existingSpace.description = spaceDetails.description;
+          existingSpace.type = spaceDetails.type;
+          existingSpace.capacity = spaceDetails.capacity;
+          existingSpace.pricePerHour = spaceDetails.pricePerHour;
+          spacesUpdated += 1;
+        }
+        continue;
+      }
 
       em.persist(
         em.create(Space, {
-          ...sampleSpace,
+          ...spaceDetails,
           isActive: true,
         }),
       );
       spacesCreated += 1;
     }
-    if (spacesCreated > 0) await em.flush();
-    console.info(`${spacesCreated} sample space(s) created.`);
+    if (spacesCreated > 0 || spacesUpdated > 0) await em.flush();
+    console.info(`${spacesCreated} sample space(s) created; ${spacesUpdated} legacy sample space(s) updated.`);
   } finally {
     await orm.close(true);
   }

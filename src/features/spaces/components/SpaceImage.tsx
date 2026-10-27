@@ -16,6 +16,7 @@ type SpaceImageProps = {
   className?: string;
   width: number;
   height: number;
+  eager?: boolean;
 };
 
 export function SpaceImage({
@@ -24,6 +25,7 @@ export function SpaceImage({
   className,
   width,
   height,
+  eager = false,
 }: SpaceImageProps) {
   const { t } = useLocale();
 
@@ -34,6 +36,7 @@ export function SpaceImage({
       alt={`${t('spaceImage')} ${name}`}
       width={width}
       height={height}
+      loading={eager ? 'eager' : 'lazy'}
     />
   );
 }

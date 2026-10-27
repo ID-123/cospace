@@ -26,15 +26,18 @@ export function SessionMenu({ user }: SessionMenuProps) {
     );
   }
 
-  const displayName =
-    [user.firstName].filter(Boolean).join(' ').trim();
+  const displayName = user.firstName.trim() || user.email;
 
   return (
     <div className="navbar__actions">
       <LocaleSwitcher />
-      <span className="navbar__user" title={displayName}>
-        Hola, {displayName}!
-      </span>
+      <Link
+        className="navbar__user"
+        href="/dashboard/profile"
+        title={t('editProfile')}
+      >
+        {t('greeting')}, {displayName}!
+      </Link>
       <LogoutButton />
     </div>
   );

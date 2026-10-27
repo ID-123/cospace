@@ -120,6 +120,10 @@
   text-overflow: ellipsis;
 }
 
+.navbar__user:hover {
+  background: #f2bd2f;
+}
+
 .session-menu {
   display: inline-flex;
   align-items: center;
@@ -160,6 +164,7 @@
 }
 
 .navbar__action:focus-visible,
+.navbar__user:focus-visible,
 .navbar__links a:focus-visible {
   outline: 3px solid var(--color-accent);
   outline-offset: 3px;

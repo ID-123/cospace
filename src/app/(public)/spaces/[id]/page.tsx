@@ -42,6 +42,7 @@ async function SpaceDetail({ params }: SpaceDetailPageProps) {
         name={space.name}
         width={1200}
         height={675}
+        eager
       />
       <p>{space.description}</p>
 

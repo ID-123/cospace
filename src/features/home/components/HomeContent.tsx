@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useLocale } from '@/components/shared/LocaleProvider';
 
-export function HomeContent() {
+export function HomeContent({ isAuthenticated }: { isAuthenticated: boolean }) {
   const { t } = useLocale();
   const spaceTypes = [
     {
@@ -38,9 +38,11 @@ export function HomeContent() {
             <Link className="home-button home-button--primary" href="/spaces">
               {t('exploreSpaces')}
             </Link>
-            <Link className="home-button home-button--secondary" href="/register">
-              {t('createAccount')}
-            </Link>
+            {!isAuthenticated ? (
+              <Link className="home-button home-button--secondary" href="/register">
+                {t('createAccount')}
+              </Link>
+            ) : null}
           </div>
         </div>
 

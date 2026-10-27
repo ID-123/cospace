@@ -54,9 +54,10 @@ pnpm dev
 ```
 
 La aplicación estará disponible en <http://localhost:3000>. El seed crea el
-administrador y tres espacios de ejemplo. Es idempotente para esos registros:
+administrador y siete espacios de coworking listos para reservar. Es idempotente:
 no duplica espacios por nombre ni reemplaza la contraseña de un administrador
-existente.
+existente; también actualiza los tres espacios de plantilla anteriores sin
+cambiar sus identificadores ni perder sus reservas.
 
 El correo y contraseña de administrador son los configurados en `ADMIN_EMAIL` y
 `ADMIN_PASSWORD`; no hay credenciales predeterminadas en el repositorio.
@@ -73,6 +74,8 @@ El correo y contraseña de administrador son los configurados en `ADMIN_EMAIL` y
   como horas por precio por hora; el cliente no envía el precio.
 - El usuario solo ve sus reservas y puede cancelar las propias hasta 2 horas
   antes del inicio. Un administrador puede cancelar reservas.
+- El saludo de la barra de navegación abre el perfil, donde se pueden actualizar
+  los datos personales y cambiar la contraseña.
 - Cancelar cambia el estado a `cancelled`; no elimina el registro.
 - Un espacio se desactiva, nunca se elimina. No se puede desactivar mientras
   tenga reservas futuras confirmadas.

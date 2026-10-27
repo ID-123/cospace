@@ -13,6 +13,7 @@ type SpaceCardProps = {
   type: Space['type'];
   capacity: number;
   pricePerHour: number;
+  eager?: boolean;
 };
 
 export function SpaceCard({
@@ -22,6 +23,7 @@ export function SpaceCard({
   type,
   capacity,
   pricePerHour,
+  eager = false,
 }: SpaceCardProps) {
   const { t } = useLocale();
 
@@ -33,6 +35,7 @@ export function SpaceCard({
         name={name}
         width={640}
         height={360}
+        eager={eager}
       />
       <div className="space-card__content">
         <span className="space-card__label">{t('availableSpace')}</span>

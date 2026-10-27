@@ -57,20 +57,24 @@ export function setSessionCookies(
   response: NextResponse,
   tokens: { accessToken: string; refreshToken: string },
 ): void {
-  const sharedOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax' as const,
-    path: '/',
-  };
-
-  response.cookies.set(ACCESS_COOKIE, tokens.accessToken, {
-    ...sharedOptions,
-    maxAge: ACCESS_TOKEN_SECONDS,
-  });
+  setAccessCookie(response, tokens.accessToken);
   response.cookies.set(REFRESH_COOKIE, tokens.refreshToken, {
-    ...sharedOptions,
+    ...sessionCookieOptions,
     maxAge: REFRESH_TOKEN_SECONDS,
+  });
+}
+
+const sessionCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax' as const,
+  path: '/',
+};
+
+export function setAccessCookie(response: NextResponse, accessToken: string): void {
+  response.cookies.set(ACCESS_COOKIE, accessToken, {
+    ...sessionCookieOptions,
+    maxAge: ACCESS_TOKEN_SECONDS,
   });
 }
 
