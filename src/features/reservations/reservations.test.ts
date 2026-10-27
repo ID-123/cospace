@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getReservationScheduleError } from './reservations';
+import { getBogotaDate, getReservationScheduleError } from './reservations';
 
 const now = new Date('2026-10-28T15:00:00.000Z');
 
 describe('reservation schedule rules', () => {
+  it('formats the date in Bogotá time', () => {
+    assert.equal(getBogotaDate(new Date('2026-10-28T15:00:00.000Z')), '2026-10-28');
+  });
+
   it('accepts a whole-hour reservation within the Bogotá business hours', () => {
     assert.equal(
       getReservationScheduleError(new Date('2026-10-29T14:00:00.000Z'), 2, now),
@@ -66,6 +70,13 @@ describe('reservation schedule rules', () => {
   it('rejects dates more than 30 days ahead', () => {
     assert.notEqual(
       getReservationScheduleError(new Date('2026-11-28T16:00:00.000Z'), 1, now),
+      null,
+    );
+  });
+
+  it('accepts a reservation exactly 30 days ahead', () => {
+    assert.equal(
+      getReservationScheduleError(new Date('2026-11-27T15:00:00.000Z'), 1, now),
       null,
     );
   });

@@ -2,9 +2,10 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getActiveSpaceById } from '@/database/queries/spaces';
-import { ReservationForm } from '@/components/shared/ReservationForm';
+import { getBogotaDate } from '@/features/reservations/reservations';
+import { ReservationForm } from '@/features/reservations/components/ReservationForm';
 import { LocalizedText } from '@/components/shared/LocalizedText';
-import { SpaceImage } from '@/components/shared/SpaceImage';
+import { SpaceImage } from '@/features/spaces/components/SpaceImage';
 import { LocalizedPrice } from '@/components/shared/LocalizedPrice';
 import { LocalizedHeading } from '@/components/shared/LocalizedHeading';
 
@@ -71,7 +72,7 @@ async function SpaceDetail({ params }: SpaceDetailPageProps) {
         <h2>
           <LocalizedText translationKey="bookSpace" />
         </h2>
-        <ReservationForm spaceId={space.id} />
+        <ReservationForm spaceId={space.id} today={getBogotaDate(new Date())} />
       </section>
     </main>
   );

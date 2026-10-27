@@ -3,10 +3,11 @@
 import { useState, type ChangeEvent, type SubmitEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from '@/components/shared/LocaleProvider';
-import { getReservationScheduleError } from '@/auth/reservations';
+import { getReservationScheduleError } from '@/features/reservations/reservations';
 
 type ReservationFormProps = {
   spaceId: string;
+  today: string;
 };
 
 type ApiError = {
@@ -16,32 +17,18 @@ type ApiError = {
   };
 };
 
-function getBogotaDate(date: Date): string {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Bogota',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(date);
-  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
-  return `${values.year}-${values.month}-${values.day}`;
-}
-
 function addDays(date: string, days: number): string {
   const [year, month, day] = date.split('-').map(Number);
   const result = new Date(Date.UTC(year, month - 1, day + days));
   return result.toISOString().slice(0, 10);
 }
 
-export function ReservationForm({ spaceId }: ReservationFormProps) {
+export function ReservationForm({ spaceId, today }: ReservationFormProps) {
   const router = useRouter();
   const { t } = useLocale();
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [durationHours, setDurationHours] = useState(1);
-  const today = getBogotaDate(new Date());
-  const maximumDate = addDays(today, 30);
-
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage('');
@@ -119,7 +106,13 @@ export function ReservationForm({ spaceId }: ReservationFormProps) {
     <form className="reservation-form" onSubmit={handleSubmit}>
       <label>
         {t('date')}
-        <input name="date" type="date" min={today} max={maximumDate} required />
+        <input
+          name="date"
+          type="date"
+          min={today}
+          max={addDays(today, 30)}
+          required
+        />
       </label>
       <label>
         {t('startTimeBogota')}
@@ -151,7 +144,11 @@ export function ReservationForm({ spaceId }: ReservationFormProps) {
           {message}
         </p>
       ) : null}
-      <button className="auth-form__submit" type="submit" disabled={isSubmitting}>
+      <button
+        className="auth-form__submit"
+        type="submit"
+        disabled={isSubmitting}
+      >
         {isSubmitting ? t('booking') : t('reserve')}
       </button>
     </form>

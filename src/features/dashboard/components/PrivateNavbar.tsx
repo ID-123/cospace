@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import type { SessionUser } from '@/auth/token';
+import type { SessionUser } from '@/features/auth/token';
 import { NavbarLinks } from '@/components/shared/NavbarLinks';
-import { SessionMenu } from '@/components/shared/SessionMenu';
+import { SessionMenu } from '@/features/dashboard/components/SessionMenu';
 
 type PrivateNavbarProps = {
   user: SessionUser;

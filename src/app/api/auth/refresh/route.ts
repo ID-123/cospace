@@ -1,13 +1,13 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { errorResponse } from '@/auth/http';
-import { createAccessToken, REFRESH_COOKIE } from '@/auth/token';
+import { errorResponse } from '@/features/auth/http';
+import { createAccessToken, REFRESH_COOKIE } from '@/features/auth/token';
 import {
   clearSessionCookies,
   hashRefreshToken,
   REFRESH_TOKEN_SECONDS,
   setSessionCookies,
-} from '@/auth/session';
+} from '@/features/auth/session';
 import type { RefreshToken } from '@/database/entities/user';
 import { getEntityClass, getOrm } from '@/database/orm';
 

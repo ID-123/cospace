@@ -11,10 +11,10 @@ import {
   createAccessToken,
   REFRESH_COOKIE,
   verifyAccessToken,
-} from '@/auth/token';
-import type { SessionUser } from '@/auth/token';
+} from '@/features/auth/token';
+import type { SessionUser } from '@/features/auth/token';
 
-export type { SessionUser } from '@/auth/token';
+export type { SessionUser } from '@/features/auth/token';
 export const REFRESH_TOKEN_SECONDS = 7 * 24 * 60 * 60;
 
 export async function getCurrentSession(): Promise<SessionUser | null> {

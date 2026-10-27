@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { getAuthenticatedUser } from '@/auth/current-user';
-import { errorResponse } from '@/auth/http';
-import { spaceInputSchema } from '@/auth/space-validation';
+import { getAuthenticatedUser } from '@/features/auth/current-user';
+import { errorResponse } from '@/features/auth/http';
+import { spaceInputSchema } from '@/features/spaces/validation';
 import { getEntityClass, getOrm } from '@/database/orm';
 import type { Space } from '@/database/entities/space';
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { credentialsSchema } from '@/auth/validation';
+import { credentialsSchema } from '@/features/auth/validation';
 
 type Credentials = {
   email: string;

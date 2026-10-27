@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { errorResponse } from '@/auth/http';
-import { ACCESS_COOKIE, verifyAccessToken } from '@/auth/token';
+import { errorResponse } from '@/features/auth/http';
+import { ACCESS_COOKIE, verifyAccessToken } from '@/features/auth/token';
 import type { Space } from '@/database/entities/space';
 import type { User } from '@/database/entities/user';
 import { getEntityClass, getOrm } from '@/database/orm';

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { Space } from '@/database/entities/space';
 import { useLocale } from '@/components/shared/LocaleProvider';
-import { SpaceImage } from '@/components/shared/SpaceImage';
+import { SpaceImage } from '@/features/spaces/components/SpaceImage';
 import { LocalizedPrice } from '@/components/shared/LocalizedPrice';
 
 type SpaceCardProps = {

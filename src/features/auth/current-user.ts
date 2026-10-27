@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { ACCESS_COOKIE, verifyAccessToken } from '@/auth/token';
+import { ACCESS_COOKIE, verifyAccessToken } from '@/features/auth/token';
 import type { User } from '@/database/entities/user';
 import { getEntityClass, getOrm } from '@/database/orm';
 

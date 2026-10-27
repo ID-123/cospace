@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-import { getCurrentSession } from '@/auth/session';
+import { getCurrentSession } from '@/features/auth/session';
 
 type AuthLayoutProps = {
   children: ReactNode;

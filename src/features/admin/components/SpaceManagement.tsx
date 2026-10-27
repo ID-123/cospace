@@ -21,6 +21,10 @@ type ApiError = {
   };
 };
 
+type SpacesLoadResult =
+  | { spaces: Space[]; error: null }
+  | { spaces: null; error: string };
+
 const emptySpace = {
   name: '',
   description: '',
@@ -38,34 +42,50 @@ export function SpaceManagement() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  const loadSpaces = useCallback(async () => {
-    setErrorMessage('');
+  const fetchSpaces = useCallback(async (): Promise<SpacesLoadResult> => {
     try {
       const response = await fetch('/api/admin/spaces');
       if (!response.ok) {
         const result = (await response.json()) as ApiError;
-        setErrorMessage(
-          result.error?.code === 'FORBIDDEN'
-            ? t('adminForbidden')
-            : result.error?.code === 'UNAUTHENTICATED'
-              ? t('unauthenticated')
-              : result.error?.code === 'INTERNAL_ERROR'
-                ? t('loadSpacesError')
-              : result.error?.message ?? t('loadSpacesError'),
-        );
-        return;
+        return {
+          spaces: null,
+          error:
+            result.error?.code === 'FORBIDDEN'
+              ? t('adminForbidden')
+              : result.error?.code === 'UNAUTHENTICATED'
+                ? t('unauthenticated')
+                : result.error?.code === 'INTERNAL_ERROR'
+                  ? t('loadSpacesError')
+                  : result.error?.message ?? t('loadSpacesError'),
+        };
       }
-      setSpaces((await response.json()) as Space[]);
+      return { spaces: (await response.json()) as Space[], error: null };
     } catch {
-      setErrorMessage(t('connectionError'));
-    } finally {
-      setIsLoading(false);
+      return { spaces: null, error: t('connectionError') };
     }
   }, [t]);
 
+  const loadSpaces = useCallback(async () => {
+    setErrorMessage('');
+    const result = await fetchSpaces();
+    if (result.error !== null) setErrorMessage(result.error);
+    else setSpaces(result.spaces);
+    setIsLoading(false);
+  }, [fetchSpaces]);
+
   useEffect(() => {
-    void loadSpaces();
-  }, [loadSpaces]);
+    let isMounted = true;
+    void fetchSpaces().then((result) => {
+      if (!isMounted) return;
+      if (result.error !== null) setErrorMessage(result.error);
+      else setSpaces(result.spaces);
+      setIsLoading(false);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchSpaces]);
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();

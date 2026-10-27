@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { SpaceManagement } from '@/components/admin/SpaceManagement';
-import { AdminHeading } from '@/components/shared/AdminHeading';
+import { SpaceManagement } from '@/features/admin/components/SpaceManagement';
+import { AdminHeading } from '@/features/admin/components/AdminHeading';
 
 export const metadata: Metadata = {
   title: 'Administración | CoSpace',

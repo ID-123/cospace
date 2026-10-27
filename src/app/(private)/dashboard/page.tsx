@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { getCurrentSession } from '@/auth/session';
-import { ReservationList } from '@/components/shared/ReservationList';
-import { DashboardIntro } from '@/components/shared/DashboardIntro';
+import { getCurrentSession } from '@/features/auth/session';
+import { ReservationList } from '@/features/reservations/components/ReservationList';
+import { DashboardIntro } from '@/features/dashboard/components/DashboardIntro';
 
 export const metadata: Metadata = {
   title: 'Mis reservas | CoSpace',

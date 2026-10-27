@@ -26,6 +26,11 @@ function getBogotaParts(date: Date): Record<string, number> {
   );
 }
 
+export function getBogotaDate(date: Date): string {
+  const { year, month, day } = getBogotaParts(date);
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
 export function getReservationScheduleError(
   startsAt: Date,
   durationHours: number,

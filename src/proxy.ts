@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ACCESS_COOKIE, REFRESH_COOKIE, verifyAccessToken } from '@/auth/token';
+import { ACCESS_COOKIE, REFRESH_COOKIE, verifyAccessToken } from '@/features/auth/token';
 
 function isProtectedRoute(pathname: string): boolean {
   return pathname === '/dashboard' || pathname.startsWith('/dashboard/') ||
@@ -27,6 +27,10 @@ function responseWithCookies(
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const pathname = request.nextUrl.pathname;
+  if (pathname === '/api/auth/refresh') {
+    return NextResponse.next();
+  }
+
   const accessToken = request.cookies.get(ACCESS_COOKIE)?.value;
   const refreshToken = request.cookies.get(REFRESH_COOKIE)?.value;
   let session = accessToken ? await verifyAccessToken(accessToken) : null;
@@ -109,5 +113,5 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

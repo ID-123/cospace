@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-import { getCurrentSession } from '@/auth/session';
-import { PrivateNavbar } from '@/components/shared/PrivateNavbar';
+import { getCurrentSession } from '@/features/auth/session';
+import { PrivateNavbar } from '@/features/dashboard/components/PrivateNavbar';
 import { Footer } from '@/components/shared/Footer';
 
 type AdminLayoutProps = {

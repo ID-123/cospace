@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { getCurrentSession } from '@/auth/session';
+import { getCurrentSession } from '@/features/auth/session';
 import { NavbarLinks } from '@/components/shared/NavbarLinks';
-import { SessionMenu } from '@/components/shared/SessionMenu';
+import { SessionMenu } from '@/features/dashboard/components/SessionMenu';
 
 export async function Navbar() {
   const session = await getCurrentSession();

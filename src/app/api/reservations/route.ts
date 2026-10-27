@@ -1,8 +1,8 @@
 import { LockMode } from '@mikro-orm/core';
 import { NextResponse } from 'next/server';
-import { errorResponse } from '@/auth/http';
-import { getAuthenticatedUser } from '@/auth/current-user';
-import { getReservationScheduleError, reservationInputSchema } from '@/auth/reservations';
+import { errorResponse } from '@/features/auth/http';
+import { getAuthenticatedUser } from '@/features/auth/current-user';
+import { getReservationScheduleError, reservationInputSchema } from '@/features/reservations/reservations';
 import type { Reservation } from '@/database/entities/reservation';
 import type { Space } from '@/database/entities/space';
 import type { User } from '@/database/entities/user';

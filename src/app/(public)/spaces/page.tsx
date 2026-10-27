@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { SpaceCatalog } from '@/components/shared/SpaceCatalog';
+import { SpaceCatalog } from '@/features/spaces/components/SpaceCatalog';
 import { LocalizedHeading } from '@/components/shared/LocalizedHeading';
 
 export default function SpacesPage() {

@@ -1,9 +1,9 @@
 import { LockMode } from '@mikro-orm/core';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { errorResponse } from '@/auth/http';
-import { getAuthenticatedUser } from '@/auth/current-user';
-import { spaceUpdateSchema } from '@/auth/space-validation';
+import { errorResponse } from '@/features/auth/http';
+import { getAuthenticatedUser } from '@/features/auth/current-user';
+import { spaceUpdateSchema } from '@/features/spaces/validation';
 import type { Reservation } from '@/database/entities/reservation';
 import type { Space } from '@/database/entities/space';
 import { getEntityClass, getOrm } from '@/database/orm';

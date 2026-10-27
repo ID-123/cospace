@@ -34,7 +34,6 @@ export function SpaceImage({
       alt={`${t('spaceImage')} ${name}`}
       width={width}
       height={height}
-      unoptimized
     />
   );
 }

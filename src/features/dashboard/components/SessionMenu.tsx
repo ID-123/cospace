@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import type { SessionUser } from '@/auth/token';
-import { LogoutButton } from '@/components/auth/LogoutButton';
+import type { SessionUser } from '@/features/auth/token';
+import { LogoutButton } from '@/features/auth/components/LogoutButton';
 import { LocaleSwitcher, useLocale } from '@/components/shared/LocaleProvider';
 
 type SessionMenuProps = {

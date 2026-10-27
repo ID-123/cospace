@@ -8,8 +8,8 @@ export default defineConfig({
   clientUrl: process.env.DATABASE_URL,
   entities: [Space, User, RefreshToken, Reservation],
   migrations: {
-    path: 'database/migrations',
-    pathTs: 'database/migrations',
+    path: 'src/database/migrations',
+    pathTs: 'src/database/migrations',
   },
   schema: 'public',
   schemaGenerator: {

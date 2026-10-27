@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { REFRESH_COOKIE } from '@/auth/token';
-import { clearSessionCookies, hashRefreshToken } from '@/auth/session';
+import { REFRESH_COOKIE } from '@/features/auth/token';
+import { clearSessionCookies, hashRefreshToken } from '@/features/auth/session';
 import type { RefreshToken } from '@/database/entities/user';
 import { getEntityClass, getOrm } from '@/database/orm';
 

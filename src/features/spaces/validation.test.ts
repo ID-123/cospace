@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { spaceInputSchema, spaceUpdateSchema } from './space-validation';
+import { spaceInputSchema, spaceUpdateSchema } from './validation';
 
 describe('space input validation', () => {
   const validSpace = {

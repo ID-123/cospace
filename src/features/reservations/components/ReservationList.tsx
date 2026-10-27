@@ -25,6 +25,10 @@ type ApiError = {
   };
 };
 
+type ReservationsLoadResult =
+  | { reservations: ReservationItem[]; error: null }
+  | { reservations: null; error: string };
+
 export function ReservationList() {
   const { t, locale } = useLocale();
   const bogotaDateTime = new Intl.DateTimeFormat(
@@ -39,33 +43,51 @@ export function ReservationList() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadReservations = useCallback(async () => {
-    setErrorMessage('');
+  const fetchReservations = useCallback(async (): Promise<ReservationsLoadResult> => {
     try {
       const response = await fetch('/api/reservations');
       if (!response.ok) {
         const result = (await response.json()) as ApiError;
         const code = result.error?.code;
-        setErrorMessage(
-          code === 'UNAUTHENTICATED'
+        return {
+          reservations: null,
+          error:
+            code === 'UNAUTHENTICATED'
             ? t('unauthenticated')
             : code === 'INTERNAL_ERROR'
               ? t('loadReservationsError')
-            : result.error?.message ?? t('loadReservationsError'),
-        );
-        return;
+              : result.error?.message ?? t('loadReservationsError'),
+        };
       }
-      setReservations((await response.json()) as ReservationItem[]);
+      return {
+        reservations: (await response.json()) as ReservationItem[],
+        error: null,
+      };
     } catch {
-      setErrorMessage(t('connectionError'));
-    } finally {
-      setIsLoading(false);
+      return { reservations: null, error: t('connectionError') };
     }
   }, [t]);
 
+  const loadReservations = useCallback(async () => {
+    const result = await fetchReservations();
+    if (result.error !== null) setErrorMessage(result.error);
+    else setReservations(result.reservations);
+    setIsLoading(false);
+  }, [fetchReservations]);
+
   useEffect(() => {
-    void loadReservations();
-  }, [loadReservations]);
+    let isMounted = true;
+    void fetchReservations().then((result) => {
+      if (!isMounted) return;
+      if (result.error !== null) setErrorMessage(result.error);
+      else setReservations(result.reservations);
+      setIsLoading(false);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchReservations]);
 
   async function cancelReservation(id: string) {
     setErrorMessage('');

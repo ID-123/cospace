@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { errorResponse, readCredentials } from '@/auth/http';
-import { verifyPassword } from '@/auth/password';
-import { createSession, setSessionCookies } from '@/auth/session';
+import { errorResponse, readCredentials } from '@/features/auth/http';
+import { verifyPassword } from '@/features/auth/password';
+import { createSession, setSessionCookies } from '@/features/auth/session';
 import type { User } from '@/database/entities/user';
 import { getEntityClass, getOrm } from '@/database/orm';
 

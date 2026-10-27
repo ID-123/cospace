@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { MikroORM } from '@mikro-orm/postgresql';
 import config from '../mikro-orm.config';
-import { hashPassword } from '../auth/password';
+import { hashPassword } from '../features/auth/password';
 import { User } from './entities/user';
 import { Space } from './entities/space';
 

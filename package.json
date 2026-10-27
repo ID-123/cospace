@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test src/auth/*.test.ts",
+    "test": "tsx --test src/features/*/*.test.ts",
     "db:migrate": "mikro-orm migration:up --config ./src/mikro-orm.config.ts",
     "db:seed": "tsx src/database/seed-admin.ts",
     "db:seed:admin": "tsx src/database/seed-admin.ts"
@@ -31,11 +31,11 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^10.13.0",
+    "eslint": "10.13.0",
     "eslint-config-next": "16.4.3",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "typescript": "6.0.3"
   },
   "packageManager": "pnpm@12.15.0"
 }

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, type SubmitEvent } from 'react';
-import { registrationSchema } from '@/auth/validation';
-import { AuthFormShell } from '@/components/auth/AuthFormShell';
-import { useAuthSubmission } from '@/components/auth/useAuthSubmission';
+import { registrationSchema } from '@/features/auth/validation';
+import { AuthFormShell } from '@/features/auth/components/AuthFormShell';
+import { useAuthSubmission } from '@/features/auth/components/useAuthSubmission';
 import { useLocale } from '@/components/shared/LocaleProvider';
 
 type FieldErrors = {

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { errorResponse } from '@/auth/http';
+import { errorResponse } from '@/features/auth/http';
 import { cookies } from 'next/headers';
-import { ACCESS_COOKIE, verifyAccessToken } from '@/auth/token';
+import { ACCESS_COOKIE, verifyAccessToken } from '@/features/auth/token';
 
 export async function GET(): Promise<NextResponse> {
   const cookieStore = await cookies();

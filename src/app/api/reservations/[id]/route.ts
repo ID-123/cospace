@@ -1,7 +1,7 @@
 import { LockMode } from '@mikro-orm/core';
 import { NextResponse } from 'next/server';
-import { errorResponse } from '@/auth/http';
-import { getAuthenticatedUser } from '@/auth/current-user';
+import { errorResponse } from '@/features/auth/http';
+import { getAuthenticatedUser } from '@/features/auth/current-user';
 import type { Reservation } from '@/database/entities/reservation';
 import { getEntityClass, getOrm } from '@/database/orm';
 import { z } from 'zod';

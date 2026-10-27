@@ -1,5 +1,5 @@
 import { getActiveSpaces } from '@/database/queries/spaces';
-import { SpaceCard } from '@/components/shared/SpaceCard';
+import { SpaceCard } from '@/features/spaces/components/SpaceCard';
 import { LocalizedHeading } from '@/components/shared/LocalizedHeading';
 
 export async function SpaceCatalog() {

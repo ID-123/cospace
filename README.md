@@ -120,14 +120,26 @@ contenedor en tiempo de ejecución; no se copian a la imagen.
 
 ```text
 src/
-  app/                 Páginas App Router, route groups y route handlers
-  auth/                Sesiones, validaciones y reglas de reservas
-  components/          Formularios, navegación, catálogo y administración
-  database/             Entidades, consultas, migraciones y seed
+  app/                 Rutas, layouts y endpoints de la API
+  features/            Código organizado por funcionalidad
+    auth/              Sesiones, autenticación y formularios
+    admin/             Administración de espacios
+    dashboard/         Componentes del área privada
+    home/              Contenido de la página principal
+    reservations/      Reglas, formularios y lista de reservas
+    spaces/            Validación y catálogo de espacios
+  components/shared/   Componentes reutilizados entre funcionalidades
+  database/            Entidades, consultas, migraciones, ORM y seeds
+  proxy.ts             Protección y validación de sesión en peticiones
+  mikro-orm.config.ts  Configuración del ORM
 public/
   fonts/                Fuentes Mithella
   images/               Ilustraciones locales de los espacios
 ```
+
+Las páginas y endpoints de `app/` conectan las rutas con cada funcionalidad;
+las reglas y sus componentes viven juntos en `features/`. Los componentes
+compartidos entre varias funcionalidades se mantienen en `components/shared/`.
 
 ## Despliegue
 
