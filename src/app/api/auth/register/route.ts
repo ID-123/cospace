@@ -40,6 +40,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     const user = em.create(userEntity, {
+      firstName: credentials.firstName,
+      lastName: credentials.lastName,
+      phone: credentials.phone,
       email: credentials.email,
       passwordHash: await hashPassword(credentials.password),
       role: 'user',
@@ -52,7 +55,13 @@ export async function POST(request: Request): Promise<NextResponse> {
     const tokens = await createSession(em, user);
     const response = NextResponse.json(
       {
-        user: { id: user.id, email: user.email, role: user.role },
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          role: user.role,
+        },
       },
       { status: 201 },
     );

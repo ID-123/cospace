@@ -70,17 +70,9 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         }
       } else if (refreshResponse.status >= 500) {
         console.error('Session refresh returned a server error.');
-        return NextResponse.json(
-          { error: 'No se pudo verificar la sesión.' },
-          { status: 503 },
-        );
       }
     } catch (error) {
       console.error('Session refresh request failed:', error);
-      return NextResponse.json(
-        { error: 'No se pudo verificar la sesión.' },
-        { status: 503 },
-      );
     }
   }
 

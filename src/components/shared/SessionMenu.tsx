@@ -1,31 +1,41 @@
+'use client';
+
 import Link from 'next/link';
-import { getCurrentSession } from '@/auth/session';
+import type { SessionUser } from '@/auth/token';
 import { LogoutButton } from '@/components/auth/LogoutButton';
+import { LocaleSwitcher, useLocale } from '@/components/shared/LocaleProvider';
 
-export async function SessionMenu() {
-  const session = await getCurrentSession();
+type SessionMenuProps = {
+  user: SessionUser | null;
+};
 
-  if (!session) {
+export function SessionMenu({ user }: SessionMenuProps) {
+  const { t } = useLocale();
+
+  if (!user) {
     return (
-      <>
-        <Link href="/login">Iniciar sesión</Link>
-        <Link href="/register">Crear cuenta</Link>
-      </>
+      <div className="navbar__actions">
+        <LocaleSwitcher />
+        <Link className="navbar__action navbar__action--login" href="/login">
+          {t('login')}
+        </Link>
+        <Link className="navbar__action navbar__action--register" href="/register">
+          {t('register')}
+        </Link>
+      </div>
     );
   }
 
+  const displayName =
+    [user.firstName].filter(Boolean).join(' ').trim();
+
   return (
-    <>
-      <span className="session-menu__greeting">
-        Hola, <strong>{session.email}</strong>
+    <div className="navbar__actions">
+      <LocaleSwitcher />
+      <span className="navbar__user" title={displayName}>
+        Hola, {displayName}!
       </span>
-      <Link href={session.role === 'admin' ? '/admin' : '/dashboard'}>
-        {session.role === 'admin' ? 'Administración' : 'Mis reservas'}
-      </Link>
-      {session.role === 'admin' ? (
-        <Link href="/dashboard">Mis reservas</Link>
-      ) : null}
       <LogoutButton />
-    </>
+    </div>
   );
 }

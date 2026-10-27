@@ -32,7 +32,13 @@ export async function createSession(
   em: EntityManager,
   user: User,
 ): Promise<{ accessToken: string; refreshToken: string }> {
-  const accessToken = await createAccessToken(user);
+  const accessToken = await createAccessToken({
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    role: user.role,
+  });
   const refreshToken = randomBytes(32).toString('base64url');
   const refreshTokenEntity = getEntityClass<RefreshToken>(em, 'RefreshToken');
   const refreshTokenRecord = em.create(refreshTokenEntity, {
@@ -53,7 +59,7 @@ export function setSessionCookies(
 ): void {
   const sharedOptions = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax' as const,
     path: '/',
   };

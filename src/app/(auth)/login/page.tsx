@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { AuthForm } from '@/components/auth/AuthForm';
+import { LoginForm } from '@/components/auth/LoginForm';
 
 export const metadata: Metadata = {
   title: 'Iniciar sesión | CoSpace',
@@ -7,11 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function LoginPage() {
-  return (
-    <AuthForm
-      mode="login"
-      title="Qué bueno verte"
-      description="Inicia sesión para continuar con tus reservas."
-    />
-  );
+  return <LoginForm />;
 }

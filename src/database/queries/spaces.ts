@@ -1,11 +1,10 @@
-import { cacheLife } from 'next/cache';
+import { connection } from 'next/server';
+import { z } from 'zod';
 import { getEntityClass, getOrm } from '@/database/orm';
 import type { Space } from '@/database/entities/space';
 
 export async function getActiveSpaces() {
-  'use cache';
-  cacheLife('minutes');
-
+  await connection();
   const orm = await getOrm();
   const em = orm.em.fork();
   const spaceEntity = getEntityClass<Space>(em, 'Space');
@@ -15,20 +14,21 @@ export async function getActiveSpaces() {
     id: space.id,
     name: space.name,
     description: space.description,
+    type: space.type,
     capacity: space.capacity,
     pricePerHour: space.pricePerHour,
   }));
 }
 
 export async function getActiveSpaceById(id: string) {
-  'use cache';
-  cacheLife('minutes');
+  await connection();
+  if (!z.uuid().safeParse(id).success) return null;
 
   const orm = await getOrm();
   const em = orm.em.fork();
   const spaceEntity = getEntityClass<Space>(em, 'Space');
   const space = await em.findOne<Space>(spaceEntity, {
-    id: id as `${string}-${string}-${string}-${string}-${string}`,
+    id,
     isActive: true,
   });
 
@@ -38,6 +38,7 @@ export async function getActiveSpaceById(id: string) {
     id: space.id,
     name: space.name,
     description: space.description,
+    type: space.type,
     capacity: space.capacity,
     pricePerHour: space.pricePerHour,
   };

@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocale } from '@/components/shared/LocaleProvider';
 
 export function LogoutButton() {
   const router = useRouter();
+  const { t } = useLocale();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -16,14 +18,14 @@ export function LogoutButton() {
       const response = await fetch('/api/auth/logout', { method: 'POST' });
 
       if (!response.ok) {
-        setErrorMessage('No se pudo cerrar sesión. Inténtalo de nuevo.');
+        setErrorMessage(t('logoutError'));
         return;
       }
 
       router.replace('/');
       router.refresh();
     } catch {
-      setErrorMessage('No fue posible conectar con el servidor.');
+      setErrorMessage(t('connectionError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -37,7 +39,7 @@ export function LogoutButton() {
         onClick={handleLogout}
         disabled={isSubmitting}
       >
-        {isSubmitting ? 'Cerrando...' : 'Cerrar sesión'}
+        {isSubmitting ? t('loggingOut') : t('logout')}
       </button>
       {errorMessage ? (
         <span className="session-menu__error" role="alert">

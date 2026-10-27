@@ -6,6 +6,8 @@ export const ACCESS_TOKEN_SECONDS = 15 * 60;
 
 export type SessionUser = {
   id: string;
+  firstName: string;
+  lastName: string;
   email: string;
   role: 'user' | 'admin';
 };
@@ -21,7 +23,12 @@ function getAccessSecret(): Uint8Array {
 }
 
 export async function createAccessToken(user: SessionUser): Promise<string> {
-  return new SignJWT({ email: user.email, role: user.role })
+  return new SignJWT({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    role: user.role,
+  })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(user.id)
     .setIssuedAt()
@@ -39,6 +46,8 @@ export async function verifyAccessToken(
 
     if (
       !payload.sub ||
+      typeof payload.firstName !== 'string' ||
+      typeof payload.lastName !== 'string' ||
       typeof payload.email !== 'string' ||
       (payload.role !== 'user' && payload.role !== 'admin')
     ) {
@@ -47,6 +56,8 @@ export async function verifyAccessToken(
 
     return {
       id: payload.sub,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
       email: payload.email,
       role: payload.role,
     };

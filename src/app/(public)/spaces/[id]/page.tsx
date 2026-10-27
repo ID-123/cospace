@@ -2,6 +2,11 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getActiveSpaceById } from '@/database/queries/spaces';
+import { ReservationForm } from '@/components/shared/ReservationForm';
+import { LocalizedText } from '@/components/shared/LocalizedText';
+import { SpaceImage } from '@/components/shared/SpaceImage';
+import { LocalizedPrice } from '@/components/shared/LocalizedPrice';
+import { LocalizedHeading } from '@/components/shared/LocalizedHeading';
 
 type SpaceDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -9,7 +14,7 @@ type SpaceDetailPageProps = {
 
 export default function SpaceDetailPage({ params }: SpaceDetailPageProps) {
   return (
-    <Suspense fallback={<p>Cargando detalles del espacio...</p>}>
+    <Suspense fallback={<LocalizedHeading translationKey="loadingSpaceDetails" as="p" />}>
       <SpaceDetail params={params} />
     </Suspense>
   );
@@ -25,19 +30,48 @@ async function SpaceDetail({ params }: SpaceDetailPageProps) {
 
   return (
     <main className="space-detail">
-      <Link href="/spaces">← Volver a los espacios</Link>
+      <Link href="/spaces">
+        ← <LocalizedText translationKey="backToSpaces" />
+      </Link>
 
       <h1>{space.name}</h1>
+      <SpaceImage
+        className="space-detail__image"
+        type={space.type}
+        name={space.name}
+        width={1200}
+        height={675}
+      />
       <p>{space.description}</p>
 
       <section className="space-detail__information">
         <p>
-          <span>Capacidad</span> <strong>{space.capacity} personas</strong>
+          <span>
+            <LocalizedText translationKey="capacity" />
+          </span>{' '}
+          <strong>
+            {space.capacity}{' '}
+            <LocalizedText
+              translationKey={space.capacity === 1 ? 'person' : 'people'}
+            />
+          </strong>
         </p>
 
         <p>
-          <span>Precio por hora</span> <strong>${space.pricePerHour.toLocaleString('es-CO')}</strong>
+          <span>
+            <LocalizedText translationKey="hourlyPrice" />
+          </span>{' '}
+          <strong>
+            <LocalizedPrice amount={space.pricePerHour} />
+          </strong>
         </p>
+      </section>
+
+      <section className="space-detail__booking">
+        <h2>
+          <LocalizedText translationKey="bookSpace" />
+        </h2>
+        <ReservationForm spaceId={space.id} />
       </section>
     </main>
   );

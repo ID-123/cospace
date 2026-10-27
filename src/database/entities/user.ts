@@ -6,6 +6,9 @@ export const UserSchema = defineEntity({
   tableName: 'app_user',
   properties: {
     id: p.uuid().primary().onCreate(() => randomUUID()),
+    firstName: p.string(),
+    lastName: p.string(),
+    phone: p.string(),
     email: p.string().unique(),
     passwordHash: p.string(),
     role: p.enum(['user', 'admin']).default('user'),

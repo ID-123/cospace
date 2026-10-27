@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "tsx --test src/auth/*.test.ts",
     "db:migrate": "mikro-orm migration:up --config ./src/mikro-orm.config.ts",
+    "db:seed": "tsx src/database/seed-admin.ts",
     "db:seed:admin": "tsx src/database/seed-admin.ts"
   },
   "dependencies": {

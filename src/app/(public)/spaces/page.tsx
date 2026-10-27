@@ -1,12 +1,13 @@
 import { Suspense } from 'react';
 import { SpaceCatalog } from '@/components/shared/SpaceCatalog';
+import { LocalizedHeading } from '@/components/shared/LocalizedHeading';
 
 export default function SpacesPage() {
   return (
     <main>
-      <h1>Espacios disponibles</h1>
+      <LocalizedHeading translationKey="spacesTitle" />
 
-      <Suspense fallback={<p>Cargando espacios...</p>}>
+      <Suspense fallback={<LocalizedHeading translationKey="loadingSpaces" as="p" />}>
         <SpaceCatalog />
       </Suspense>
     </main>

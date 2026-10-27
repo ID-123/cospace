@@ -48,7 +48,13 @@ export async function POST(): Promise<NextResponse> {
     }
 
     tokenRecord.expiresAt = new Date(Date.now() + REFRESH_TOKEN_SECONDS * 1000);
-    const accessToken = await createAccessToken(tokenRecord.user);
+    const accessToken = await createAccessToken({
+      id: tokenRecord.user.id,
+      firstName: tokenRecord.user.firstName,
+      lastName: tokenRecord.user.lastName,
+      email: tokenRecord.user.email,
+      role: tokenRecord.user.role,
+    });
     await em.flush();
     const response = NextResponse.json({ refreshed: true });
     setSessionCookies(response, { accessToken, refreshToken });
