@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState, type SubmitEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type SubmitEvent } from 'react';
 import { useLocale } from '@/components/shared/LocaleProvider';
 import { LocalizedPrice } from '@/components/shared/LocalizedPrice';
 
@@ -41,6 +41,12 @@ export function SpaceManagement() {
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [mutatingSpaceIds, setMutatingSpaceIds] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [visibleCount, setVisibleCount] = useState(5);
+  const formRef = useRef<HTMLFormElement>(null);
+  const listEndRef = useRef<HTMLDivElement>(null);
 
   const fetchSpaces = useCallback(async (): Promise<SpacesLoadResult> => {
     try {
@@ -89,19 +95,25 @@ export function SpaceManagement() {
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSaving) return;
     setErrorMessage('');
     setSuccessMessage('');
-    setIsSaving(true);
 
     const formData = new FormData(event.currentTarget);
     const spaceData = {
-      name: String(formData.get('name')),
-      description: String(formData.get('description')),
+      name: String(formData.get('name') ?? '').trim(),
+      description: String(formData.get('description') ?? '').trim(),
       type: String(formData.get('type')),
       capacity: Number(formData.get('capacity')),
       pricePerHour: Number(formData.get('pricePerHour')),
     };
 
+    if (!spaceData.name || !spaceData.description) {
+      setErrorMessage(t('invalidInput'));
+      return;
+    }
+
+    setIsSaving(true);
     try {
       const response = await fetch(
         editingSpace ? `/api/spaces/${editingSpace.id}` : '/api/spaces',
@@ -139,6 +151,9 @@ export function SpaceManagement() {
   }
 
   async function toggleActive(space: Space) {
+    if (mutatingSpaceIds.has(space.id)) return;
+
+    setMutatingSpaceIds((current) => new Set(current).add(space.id));
     setErrorMessage('');
     setSuccessMessage('');
     try {
@@ -166,14 +181,92 @@ export function SpaceManagement() {
       await loadSpaces();
     } catch {
       setErrorMessage(t('connectionError'));
+    } finally {
+      setMutatingSpaceIds((current) => {
+        const next = new Set(current);
+        next.delete(space.id);
+        return next;
+      });
     }
   }
 
+  const filteredSpaces = useMemo(() => {
+    const query = searchQuery.trim().toLocaleLowerCase();
+    return spaces.filter((space) => {
+      const matchesName = !query || space.name.toLocaleLowerCase().includes(query);
+      const matchesStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'active' ? space.isActive : !space.isActive);
+      return matchesName && matchesStatus;
+    });
+  }, [searchQuery, spaces, statusFilter]);
+
+  const visibleSpaces = filteredSpaces.slice(0, visibleCount);
   const formSpace = editingSpace ?? emptySpace;
+
+  useEffect(() => {
+    const target = listEndRef.current;
+    if (!target) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting) {
+        setVisibleCount((count) => Math.min(count + 5, filteredSpaces.length));
+      }
+    }, { rootMargin: '80px' });
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [filteredSpaces.length, visibleCount]);
+
+  function startEditing(space: Space) {
+    setEditingSpace(space);
+    setErrorMessage('');
+    setSuccessMessage('');
+    requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const input = formRef.current?.elements.namedItem('name') as HTMLInputElement | null;
+      input?.focus();
+    });
+  }
 
   return (
     <section className="space-management" aria-label={t('spaceManagement')}>
+      <div className="space-management__toolbar">
+        <h2>{t('registeredSpaces')}</h2>
+        <div className="space-management__toolbar-controls">
+        <label className="space-management__search">
+          <span className="visually-hidden">{t('searchSpaces')}</span>
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(event) => {
+              setSearchQuery(event.currentTarget.value);
+              setVisibleCount(5);
+            }}
+            placeholder={t('searchSpacesPlaceholder')}
+          />
+        </label>
+        <div className="space-management__filters" aria-label={t('filterSpaces')}>
+          {(['all', 'active', 'inactive'] as const).map((filter) => (
+            <button
+              key={filter}
+              type="button"
+              className={`space-management__filter${statusFilter === filter ? ' is-selected' : ''}`}
+              aria-pressed={statusFilter === filter}
+              onClick={() => {
+                setStatusFilter(filter);
+                setVisibleCount(5);
+              }}
+            >
+              {filter === 'all' ? t('allSpaces') : filter === 'active' ? t('active') : t('inactive')}
+            </button>
+          ))}
+        </div>
+        </div>
+      </div>
+      <div className="space-management__columns">
       <form
+        ref={formRef}
         key={editingSpace?.id ?? 'new-space'}
         className="space-management__form"
         onSubmit={handleSubmit}
@@ -263,13 +356,16 @@ export function SpaceManagement() {
       </form>
 
       <div className="space-management__list">
-        <h2>{t('registeredSpaces')}</h2>
         {isLoading ? <p>{t('loadingAdminSpaces')}</p> : null}
-        {!isLoading && spaces.length === 0 ? (
+        {!isLoading && filteredSpaces.length === 0 ? (
           <p className="account-page__empty">{t('noRegisteredSpaces')}</p>
         ) : null}
-        {spaces.map((space) => (
-          <article className="space-management__item" key={space.id}>
+        <div className="space-management__list-scroll">
+        {visibleSpaces.map((space) => (
+          <article
+            className={`space-management__item${editingSpace?.id === space.id ? ' is-editing' : ''}`}
+            key={space.id}
+          >
             <div className="space-management__details">
               <div>
                 <h3>{space.name}</h3>
@@ -296,24 +392,28 @@ export function SpaceManagement() {
               <button
                 className="space-management__secondary"
                 type="button"
-                onClick={() => {
-                  setEditingSpace(space);
-                  setErrorMessage('');
-                  setSuccessMessage('');
-                }}
+                onClick={() => startEditing(space)}
               >
                 {t('edit')}
               </button>
               <button
                 className="space-management__secondary"
                 type="button"
+                disabled={mutatingSpaceIds.has(space.id)}
                 onClick={() => void toggleActive(space)}
               >
-                {space.isActive ? t('deactivate') : t('activate')}
+                {mutatingSpaceIds.has(space.id)
+                  ? t('saving')
+                  : space.isActive
+                    ? t('deactivate')
+                    : t('activate')}
               </button>
             </div>
           </article>
         ))}
+          <div ref={listEndRef} aria-hidden="true" />
+        </div>
+      </div>
       </div>
     </section>
   );

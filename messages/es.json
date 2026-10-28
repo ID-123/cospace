@@ -150,5 +150,7 @@
   "unauthenticated": "Inicia sesión para continuar.",
   "reservationDuration": "Reserva de {hours} h",
   "darkTheme": "Tema oscuro",
-  "lightTheme": "Tema claro"
+  "lightTheme": "Tema claro",
+  "filterSpaces": "Filtrar espacios por estado",
+  "allSpaces": "Todos"
 }

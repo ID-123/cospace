@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default async function AdminPage() {
   return (
-    <main className="account-page">
+    <main className="account-page admin-page">
       <AdminHeading />
       <SpaceManagement />
     </main>

@@ -5,8 +5,14 @@
 }
 
 .account-page {
+  width: 100%;
   max-width: 760px;
   margin-inline: auto;
+}
+
+.account-page.admin-page {
+  max-width: 1400px;
+  min-width: 0;
 }
 
 .account-page h1 {
