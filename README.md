@@ -17,18 +17,18 @@ servidor.
 
 Copia `.env.example` como `.env` y completa estas variables:
 
-| Variable | Uso y valor |
-| --- | --- |
-| `DATABASE_URL` | Cadena de conexión PostgreSQL del proyecto. En Supabase se obtiene desde **Project Settings → Database → Connection string**; usa el formato URI y la opción adecuada para tu entorno. |
-| `JWT_ACCESS_SECRET` | Secreto de firma del access token; debe tener al menos 32 caracteres. Genera uno con `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`. |
-| `JWT_REFRESH_SECRET` | Secreto independiente para firmar los refresh tokens; debe tener al menos 32 caracteres. Genera otro valor aleatorio con el mismo comando. |
-| `ACCESS_TOKEN_EXPIRES_IN` | Duración del access token, por ejemplo `15m`. También acepta segundos, horas o días: `s`, `m`, `h`, `d`. |
-| `REFRESH_TOKEN_EXPIRES_IN` | Duración del refresh token, por ejemplo `7d`. |
-| `ADMIN_EMAIL` | Correo para la cuenta administradora creada por el seed. |
-| `ADMIN_PASSWORD` | Contraseña inicial del administrador: mínimo 8 caracteres y máximo 72 bytes UTF-8. |
-| `ADMIN_FIRST_NAME` | Nombre del administrador (opcional; valor predeterminado: `Administrador`). |
-| `ADMIN_LAST_NAME` | Apellido del administrador (opcional; valor predeterminado: `CoSpace`). |
-| `ADMIN_PHONE` | Teléfono del administrador (opcional; valor predeterminado: `0000000000`). |
+| Variable                     | Uso y valor                                                                                                                                                                                      |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DATABASE_URL`             | Cadena de conexión PostgreSQL del proyecto. En Supabase se obtiene desde **Project Settings → Database → Connection string**; usa el formato URI y la opción adecuada para tu entorno. |
+| `JWT_ACCESS_SECRET`        | Secreto de firma del access token; debe tener al menos 32 caracteres. Genera uno con `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`.                          |
+| `JWT_REFRESH_SECRET`       | Secreto independiente para firmar los refresh tokens; debe tener al menos 32 caracteres. Genera otro valor aleatorio con el mismo comando.                                                       |
+| `ACCESS_TOKEN_EXPIRES_IN`  | Duración del access token, por ejemplo `15m`. También acepta segundos, horas o días: `s`, `m`, `h`, `d`.                                                                            |
+| `REFRESH_TOKEN_EXPIRES_IN` | Duración del refresh token, por ejemplo `7d`.                                                                                                                                                 |
+| `ADMIN_EMAIL`              | Correo para la cuenta administradora creada por el seed.                                                                                                                                         |
+| `ADMIN_PASSWORD`           | Contraseña inicial del administrador: mínimo 8 caracteres y máximo 72 bytes UTF-8.                                                                                                            |
+| `ADMIN_FIRST_NAME`         | Nombre del administrador (opcional; valor predeterminado: `Administrador`).                                                                                                                    |
+| `ADMIN_LAST_NAME`          | Apellido del administrador (opcional; valor predeterminado: `CoSpace`).                                                                                                                        |
+| `ADMIN_PHONE`              | Teléfono del administrador (opcional; valor predeterminado: `0000000000`).                                                                                                                    |
 
 El refresh token es un JWT firmado y de uso revocable: solo se guarda su hash
 SHA-256 en la base de datos junto con su fecha de vencimiento. Los tokens se
@@ -55,7 +55,7 @@ pnpm db:seed
 pnpm dev
 ```
 
-La aplicación estará disponible en <http://localhost:3000>. El seed crea el
+La aplicación estará disponible en [http://localhost:3000](http://localhost:3000). El seed crea el
 administrador y siete espacios de coworking listos para reservar. Es idempotente:
 no duplica espacios por nombre ni reemplaza la contraseña de un administrador
 existente; también actualiza los tres espacios de plantilla anteriores sin
@@ -110,16 +110,16 @@ contenedor en tiempo de ejecución; no se copian a la imagen.
 
 ## Scripts disponibles
 
-| Comando | Descripción |
-| --- | --- |
-| `pnpm dev` | Inicia Next.js en modo desarrollo. |
-| `pnpm build` | Genera el build de producción standalone. |
-| `pnpm start` | Inicia el servidor de producción fuera de Docker. |
-| `pnpm lint` | Ejecuta ESLint. |
-| `pnpm test` | Ejecuta las pruebas de reglas de reservas y validación de espacios. |
-| `pnpm db:migrate` | Aplica las migraciones pendientes. |
-| `pnpm db:seed` | Crea el administrador y los espacios de ejemplo. |
-| `pnpm db:seed:admin` | Alias histórico del seed completo. |
+| Comando                | Descripción                                                         |
+| ---------------------- | -------------------------------------------------------------------- |
+| `pnpm dev`           | Inicia Next.js en modo desarrollo.                                   |
+| `pnpm build`         | Genera el build de producción standalone.                           |
+| `pnpm start`         | Inicia el servidor de producción fuera de Docker.                   |
+| `pnpm lint`          | Ejecuta ESLint.                                                      |
+| `pnpm test`          | Ejecuta las pruebas de reglas de reservas y validación de espacios. |
+| `pnpm db:migrate`    | Aplica las migraciones pendientes.                                   |
+| `pnpm db:seed`       | Crea el administrador y los espacios de ejemplo.                     |
+| `pnpm db:seed:admin` | Alias histórico del seed completo.                                  |
 
 ## Estructura principal
 
@@ -148,6 +148,4 @@ compartidos entre varias funcionalidades se mantienen en `components/shared/`.
 
 ## Despliegue
 
-La aplicación está preparada para ejecutarse como servidor Node.js standalone y
-requiere una base de datos PostgreSQL accesible desde el entorno de ejecución.
-Todavía no hay una URL pública de despliegue configurada.
+Actualmente desplegada utilizando Vercel y Supabase en [cospace-opal.vercel.app](https://cospace-opal.vercel.app)
