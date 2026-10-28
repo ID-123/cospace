@@ -57,6 +57,8 @@ export function LocaleProvider({
 
   const setTheme = useCallback((nextTheme: Theme) => {
     setThemeState(nextTheme);
+    document.documentElement.dataset.theme = nextTheme;
+    document.documentElement.style.colorScheme = nextTheme;
     document.cookie = `cospace_theme=${nextTheme}; Path=/; Max-Age=31536000; SameSite=Lax`;
   }, []);
 
