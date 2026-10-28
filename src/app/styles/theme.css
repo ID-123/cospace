@@ -2,23 +2,46 @@
   --color-background: #e6e8e6;
   --color-foreground: #080708;
   --color-primary: #3772ff;
+  --color-primary-hover: #2458d6;
+  --color-on-primary: #ffffff;
   --color-danger: #df2935;
   --color-accent: #fdca40;
-
+  --color-surface: #ffffff;
+  --color-surface-soft: #f7f7f5;
+  --color-muted: #555555;
+  --color-border: rgb(8 7 8 / 18%);
+  --color-success: #24633d;
+  --color-success-background: #e1f1e6;
+  --color-error: #8c1821;
+  --color-error-background: #f8e8ea;
+  --color-warning-background: #fff0b5;
+  --shadow-sm: 0 4px 16px rgb(8 7 8 / 6%);
+  --shadow-md: 0 8px 24px rgb(8 7 8 / 10%);
+  --shadow-lg: 0 16px 48px rgb(8 7 8 / 12%);
   --font-brand: 'Mithella', sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-brand);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-background: #202833;
+  --color-foreground: #edf2f8;
+  --color-primary: #91b6f5;
+  --color-primary-hover: #acc9f7;
+  --color-on-primary: #16243a;
+  --color-danger: #df9298;
+  --color-accent: #91b6f5;
+  --color-surface: #283342;
+  --color-surface-soft: #334154;
+  --color-muted: #c3ccda;
+  --color-border: rgb(187 211 248 / 16%);
+  --color-success: #9bc9a9;
+  --color-success-background: #34483a;
+  --color-error: #e3a6aa;
+  --color-error-background: #49383b;
+  --color-warning-background: #514936;
+  --shadow-sm: 0 4px 16px rgb(0 0 0 / 14%);
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 18%);
+  --shadow-lg: 0 16px 48px rgb(0 0 0 / 22%);
 }
 
 @font-face {
@@ -30,11 +53,7 @@
 }
 
 @font-face {
-  font-family: 'Mithella';
-  src: url('/fonts/Mithella-Bold.otf') format('opentype');
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
+  font-family: 'Mithella'; src: url('/fonts/Mithella-Bold.otf') format('opentype'); font-style: normal; font-weight: 700; font-display: swap;
 }
 
 body {
@@ -44,12 +63,7 @@ body {
   font-weight: 400;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-brand);
   font-weight: 700;
 }

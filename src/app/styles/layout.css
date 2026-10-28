@@ -54,6 +54,28 @@
   gap: 0.65rem;
 }
 
+.theme-switcher {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.theme-switcher:hover {
+  background: var(--color-surface-soft);
+}
+
+.theme-switcher:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 .locale-switcher select {
   min-height: 2.2rem;
   padding: 0.35rem 0.45rem;
@@ -96,12 +118,12 @@
 }
 
 .navbar__action--login {
-  color: #fff;
+  color: var(--color-on-primary);
   background: var(--color-primary);
 }
 
 .navbar__action--login:hover {
-  background: #2458d6;
+  background: var(--color-primary-hover);
 }
 
 .navbar__action--register,

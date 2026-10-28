@@ -16,8 +16,8 @@
   min-height: 3rem;
   padding: 0.7rem 0.85rem;
   color: var(--color-foreground);
-  background: #fff;
-  border: 1px solid rgb(8 7 8 / 20%);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 0.6rem;
   font: inherit;
 }
@@ -38,8 +38,8 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 1.25rem;
-  background: #fff;
-  border: 1px solid rgb(8 7 8 / 12%);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 0.8rem;
 }
 
@@ -50,8 +50,8 @@
 
 .reservation-card__cancel {
   padding: 0.65rem 0.9rem;
-  color: #8c1821;
-  background: #fff;
+  color: var(--color-error);
+  background: var(--color-surface);
   border: 1px solid currentColor;
   border-radius: 0.5rem;
   font: inherit;

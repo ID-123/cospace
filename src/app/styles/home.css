@@ -40,7 +40,7 @@
 .home-hero__description {
   max-width: 540px;
   margin: 1.5rem 0 0;
-  color: #454545;
+  color: var(--color-muted);
   font-size: clamp(1rem, 2vw, 1.15rem);
   line-height: 1.7;
 }
@@ -73,12 +73,12 @@
 }
 
 .home-button--primary {
-  color: #fff;
+  color: var(--color-on-primary);
   background: var(--color-primary);
 }
 
 .home-button--primary:hover {
-  background: #2458d6;
+  background: var(--color-primary-hover);
 }
 
 .home-button--secondary {
@@ -88,7 +88,7 @@
 
 .home-button--secondary:hover {
   color: var(--color-primary);
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .home-hero__visual {
@@ -108,7 +108,7 @@
   right: 12%;
   width: 120px;
   aspect-ratio: 1;
-  background: #fff0b5;
+  background: var(--color-warning-background);
   border-radius: 50%;
 }
 
@@ -281,8 +281,8 @@
   flex-direction: column;
   overflow: hidden;
   color: var(--color-foreground);
-  background: #fff;
-  border: 1px solid rgb(8 7 8 / 8%);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 1rem;
   text-decoration: none;
   transition:
@@ -292,7 +292,7 @@
 
 .home-space-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgb(8 7 8 / 10%);
+  box-shadow: var(--shadow-md);
 }
 
 .home-space-card:focus-visible {
@@ -319,7 +319,7 @@
 
 .home-space-card__content p {
   margin: 0;
-  color: #555;
+  color: var(--color-muted);
   line-height: 1.55;
 }
 

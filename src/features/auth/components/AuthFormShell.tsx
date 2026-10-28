@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { LocaleSwitcher, useLocale } from '@/components/shared/LocaleProvider';
+import { LocaleSwitcher, ThemeSwitcher, useLocale } from '@/components/shared/LocaleProvider';
 
 type AuthFormShellProps = {
   mode: 'login' | 'register';
@@ -25,7 +25,10 @@ export function AuthFormShell({
       className={`auth-card${isRegister ? ' auth-card--register' : ''}`}
       aria-labelledby="auth-title"
     >
-      <LocaleSwitcher />
+      <div className="auth-card__preferences">
+        <LocaleSwitcher />
+        <ThemeSwitcher />
+      </div>
       <p className="auth-card__eyebrow">{eyebrow}</p>
       <h1 id="auth-title">{title}</h1>
       {children}

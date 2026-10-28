@@ -48,7 +48,6 @@ export function HomeContent({
             </div>
             <div className="home-hero__mug" />
           </div>
-          <p className="home-hero__visual-note">{t('homeVisualNote')}</p>
         </div>
       </section>
 

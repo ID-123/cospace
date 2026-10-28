@@ -9,9 +9,10 @@ export async function RequestLocaleProvider({
 }) {
   const cookieStore = await cookies();
   const initialLocale = cookieStore.get('cospace_locale')?.value === 'en' ? 'en' : 'es';
+  const initialTheme = cookieStore.get('cospace_theme')?.value === 'dark' ? 'dark' : 'light';
 
   return (
-    <LocaleProvider initialLocale={initialLocale}>
+    <LocaleProvider initialLocale={initialLocale} initialTheme={initialTheme}>
       {children}
     </LocaleProvider>
   );

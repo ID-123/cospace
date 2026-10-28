@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { SessionUser } from '@/features/auth/token';
 import { LogoutButton } from '@/features/auth/components/LogoutButton';
-import { LocaleSwitcher, useLocale } from '@/components/shared/LocaleProvider';
+import { LocaleSwitcher, ThemeSwitcher, useLocale } from '@/components/shared/LocaleProvider';
 
 type SessionMenuProps = {
   user: SessionUser | null;
@@ -16,6 +16,7 @@ export function SessionMenu({ user }: SessionMenuProps) {
     return (
       <div className="navbar__actions">
         <LocaleSwitcher />
+        <ThemeSwitcher />
         <Link className="navbar__action navbar__action--login" href="/login">
           {t('login')}
         </Link>
@@ -31,6 +32,7 @@ export function SessionMenu({ user }: SessionMenuProps) {
   return (
     <div className="navbar__actions">
       <LocaleSwitcher />
+      <ThemeSwitcher />
       <Link
         className="navbar__user"
         href="/dashboard/profile"
