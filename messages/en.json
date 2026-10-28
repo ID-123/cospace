@@ -152,5 +152,8 @@
   "darkTheme": "Dark theme",
   "lightTheme": "Light theme",
   "filterSpaces": "Filter spaces by status",
-  "allSpaces": "All"
+  "allSpaces": "All",
+  "skipToContent": "Skip to main content",
+  "openMenu": "Open navigation menu",
+  "closeMenu": "Close navigation menu"
 }

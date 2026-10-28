@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import type { SessionUser } from '@/features/auth/token';
 import { NavbarLinks } from '@/components/shared/NavbarLinks';
+import { NavbarShell } from '@/components/shared/NavbarShell';
 import { SessionMenu } from '@/features/dashboard/components/SessionMenu';
 
 type PrivateNavbarProps = {
@@ -10,12 +10,9 @@ type PrivateNavbarProps = {
 
 export function PrivateNavbar({ user, admin = false }: PrivateNavbarProps) {
   return (
-    <header className="navbar">
-      <Link href="/" className="navbar__brand" aria-label="CoSpace, inicio">
-        CoSpace
-      </Link>
+    <NavbarShell>
       <NavbarLinks role={admin ? 'admin' : user.role} />
       <SessionMenu user={user} />
-    </header>
+    </NavbarShell>
   );
 }

@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentSession } from '@/features/auth/session';
 import { PrivateNavbar } from '@/features/dashboard/components/PrivateNavbar';
 import { Footer } from '@/components/shared/Footer';
+import { SkipLink } from '@/components/shared/SkipLink';
 
 type AdminLayoutProps = {
   children: ReactNode;
@@ -30,8 +31,9 @@ async function AdminLayoutContent({ children }: AdminLayoutProps) {
 
   return (
     <div className="public-layout">
+      <SkipLink />
       <PrivateNavbar user={session} admin />
-      <div className="public-layout__content">{children}</div>
+      <main id="main-content" className="public-layout__content">{children}</main>
       <Footer />
     </div>
   );

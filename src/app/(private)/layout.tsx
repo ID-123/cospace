@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentSession } from '@/features/auth/session';
 import { PrivateNavbar } from '@/features/dashboard/components/PrivateNavbar';
 import { Footer } from '@/components/shared/Footer';
+import { SkipLink } from '@/components/shared/SkipLink';
 
 type PrivateLayoutProps = {
   children: ReactNode;
@@ -26,8 +27,9 @@ async function PrivateLayoutContent({ children }: PrivateLayoutProps) {
 
   return (
     <div className="public-layout">
+      <SkipLink />
       <PrivateNavbar user={session} />
-      <div className="public-layout__content">{children}</div>
+      <main id="main-content" className="public-layout__content">{children}</main>
       <Footer />
     </div>
   );

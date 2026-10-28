@@ -176,6 +176,20 @@
 }
 
 @media (max-width: 560px) {
+  .auth-layout {
+    place-items: start center;
+    align-content: start;
+    padding-inline: 0.75rem;
+  }
+
+  .auth-card {
+    border-radius: 1rem;
+  }
+
+  .auth-card__preferences {
+    flex-wrap: wrap;
+  }
+
   .auth-form--register {
     grid-template-columns: 1fr;
   }

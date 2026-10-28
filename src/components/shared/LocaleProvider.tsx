@@ -110,7 +110,7 @@ export function ThemeSwitcher() {
   );
 }
 
-export function LocaleSwitcher() {
+export function LocaleSwitcher({ compact = false }: { compact?: boolean }) {
   const { locale, setLocale, t } = useLocale();
 
   return (
@@ -123,8 +123,8 @@ export function LocaleSwitcher() {
           setLocale(event.currentTarget.value === 'en' ? 'en' : 'es')
         }
       >
-        <option value="es">{t('spanish')}</option>
-        <option value="en">{t('english')}</option>
+        <option value="es">{compact ? 'ES' : t('spanish')}</option>
+        <option value="en">{compact ? 'EN' : t('english')}</option>
       </select>
     </label>
   );
