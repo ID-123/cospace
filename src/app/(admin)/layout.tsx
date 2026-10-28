@@ -1,10 +1,10 @@
-import type { ReactNode } from 'react';
-import { Suspense } from 'react';
-import { redirect } from 'next/navigation';
-import { getCurrentSession } from '@/features/auth/session';
-import { PrivateNavbar } from '@/features/dashboard/components/PrivateNavbar';
-import { Footer } from '@/components/shared/Footer';
-import { SkipLink } from '@/components/shared/SkipLink';
+import type { ReactNode } from "react";
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { getCurrentSession } from "@/features/auth/session";
+import { PrivateNavbar } from "@/features/dashboard/components/PrivateNavbar";
+import { Footer } from "@/components/shared/Footer";
+import { SkipLink } from "@/components/shared/SkipLink";
 
 type AdminLayoutProps = {
   children: ReactNode;
@@ -12,7 +12,9 @@ type AdminLayoutProps = {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
-    <Suspense fallback={<main className="private-layout__loading">Cargando...</main>}>
+    <Suspense
+      fallback={<main className="private-layout__loading">Cargando...</main>}
+    >
       <AdminLayoutContent>{children}</AdminLayoutContent>
     </Suspense>
   );
@@ -22,18 +24,20 @@ async function AdminLayoutContent({ children }: AdminLayoutProps) {
   const session = await getCurrentSession();
 
   if (!session) {
-    redirect('/login');
+    redirect("/login");
   }
 
-  if (session.role !== 'admin') {
-    redirect('/dashboard');
+  if (session.role !== "admin") {
+    redirect("/dashboard");
   }
 
   return (
     <div className="public-layout">
       <SkipLink />
       <PrivateNavbar user={session} admin />
-      <main id="main-content" className="public-layout__content">{children}</main>
+      <main id="main-content" className="public-layout__content">
+        {children}
+      </main>
       <Footer />
     </div>
   );

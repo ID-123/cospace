@@ -8,16 +8,16 @@ import {
   useMemo,
   useState,
   type ReactNode,
-} from 'react';
-import { NextIntlClientProvider } from 'next-intl';
-import spanishMessages from '../../../messages/es.json';
-import englishMessages from '../../../messages/en.json';
+} from "react";
+import { NextIntlClientProvider } from "next-intl";
+import spanishMessages from "../../../messages/es.json";
+import englishMessages from "../../../messages/en.json";
 
-type Locale = 'es' | 'en';
+type Locale = "es" | "en";
 export type TranslationKey = Extract<keyof typeof spanishMessages, string>;
 type TranslationValues = Record<string, string | number | Date>;
 
-type Theme = 'light' | 'dark';
+type Theme = "light" | "dark";
 
 type LocaleContextValue = {
   locale: Locale;
@@ -32,7 +32,7 @@ const LocaleContext = createContext<LocaleContextValue | null>(null);
 export function LocaleProvider({
   children,
   initialLocale,
-  initialTheme = 'light',
+  initialTheme = "light",
 }: {
   children: ReactNode;
   initialLocale: Locale;
@@ -62,16 +62,19 @@ export function LocaleProvider({
     document.cookie = `cospace_theme=${nextTheme}; Path=/; Max-Age=31536000; SameSite=Lax`;
   }, []);
 
-  const messages = locale === 'es' ? spanishMessages : englishMessages;
-  const translate = useCallback((key: TranslationKey, values?: TranslationValues) => {
-    let message = String(messages[key] ?? spanishMessages[key]);
-    if (values) {
-      for (const [name, value] of Object.entries(values)) {
-        message = message.replaceAll(`{${name}}`, String(value));
+  const messages = locale === "es" ? spanishMessages : englishMessages;
+  const translate = useCallback(
+    (key: TranslationKey, values?: TranslationValues) => {
+      let message = String(messages[key] ?? spanishMessages[key]);
+      if (values) {
+        for (const [name, value] of Object.entries(values)) {
+          message = message.replaceAll(`{${name}}`, String(value));
+        }
       }
-    }
-    return message;
-  }, [messages]);
+      return message;
+    },
+    [messages],
+  );
   const value = useMemo(
     () => ({ locale, setLocale, theme, setTheme, t: translate }),
     [locale, setLocale, theme, setTheme, translate],
@@ -87,14 +90,14 @@ export function LocaleProvider({
 export function useLocale() {
   const context = useContext(LocaleContext);
   if (!context) {
-    throw new Error('useLocale must be used within LocaleProvider');
+    throw new Error("useLocale must be used within LocaleProvider");
   }
   return context;
 }
 
 export function ThemeSwitcher() {
   const { theme, setTheme, t } = useLocale();
-  const label = theme === 'dark' ? t('lightTheme') : t('darkTheme');
+  const label = theme === "dark" ? t("lightTheme") : t("darkTheme");
 
   return (
     <button
@@ -102,10 +105,10 @@ export function ThemeSwitcher() {
       className="theme-switcher"
       aria-label={label}
       title={label}
-      aria-pressed={theme === 'dark'}
-      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      aria-pressed={theme === "dark"}
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
     >
-      <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
+      <span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span>
     </button>
   );
 }
@@ -115,16 +118,16 @@ export function LocaleSwitcher({ compact = false }: { compact?: boolean }) {
 
   return (
     <label className="locale-switcher">
-      <span className="visually-hidden">{t('language')}</span>
+      <span className="visually-hidden">{t("language")}</span>
       <select
-        aria-label={t('language')}
+        aria-label={t("language")}
         value={locale}
         onChange={(event) =>
-          setLocale(event.currentTarget.value === 'en' ? 'en' : 'es')
+          setLocale(event.currentTarget.value === "en" ? "en" : "es")
         }
       >
-        <option value="es">{compact ? 'ES' : t('spanish')}</option>
-        <option value="en">{compact ? 'EN' : t('english')}</option>
+        <option value="es">{compact ? "ES" : t("spanish")}</option>
+        <option value="en">{compact ? "EN" : t("english")}</option>
       </select>
     </label>
   );

@@ -4,7 +4,7 @@ export type PendingReservation = {
   durationHours: number;
 };
 
-const storageKey = 'cospace.pendingReservation';
+const storageKey = "cospace.pendingReservation";
 
 export function savePendingReservation(reservation: PendingReservation): void {
   window.sessionStorage.setItem(storageKey, JSON.stringify(reservation));
@@ -27,9 +27,9 @@ export function clearPendingReservation(): void {
 }
 
 export async function submitReservation(reservation: PendingReservation) {
-  return fetch('/api/reservations', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  return fetch("/api/reservations", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(reservation),
   });
 }

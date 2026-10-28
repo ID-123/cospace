@@ -1,13 +1,13 @@
-import { Suspense } from 'react';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { getActiveSpaceById } from '@/database/queries/spaces';
-import { getBogotaDate } from '@/features/reservations/reservations';
-import { ReservationForm } from '@/features/reservations/components/ReservationForm';
-import { LocalizedText } from '@/components/shared/LocalizedText';
-import { SpaceImage } from '@/features/spaces/components/SpaceImage';
-import { LocalizedPrice } from '@/components/shared/LocalizedPrice';
-import { LocalizedHeading } from '@/components/shared/LocalizedHeading';
+import { Suspense } from "react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getActiveSpaceById } from "@/database/queries/spaces";
+import { getBogotaDate } from "@/features/reservations/reservations";
+import { ReservationForm } from "@/features/reservations/components/ReservationForm";
+import { LocalizedText } from "@/components/shared/LocalizedText";
+import { SpaceImage } from "@/features/spaces/components/SpaceImage";
+import { LocalizedPrice } from "@/components/shared/LocalizedPrice";
+import { LocalizedHeading } from "@/components/shared/LocalizedHeading";
 
 type SpaceDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -15,7 +15,11 @@ type SpaceDetailPageProps = {
 
 export default function SpaceDetailPage({ params }: SpaceDetailPageProps) {
   return (
-    <Suspense fallback={<LocalizedHeading translationKey="loadingSpaceDetails" as="p" />}>
+    <Suspense
+      fallback={
+        <LocalizedHeading translationKey="loadingSpaceDetails" as="p" />
+      }
+    >
       <SpaceDetail params={params} />
     </Suspense>
   );
@@ -54,9 +58,9 @@ async function SpaceDetail({ params }: SpaceDetailPageProps) {
                 <LocalizedText translationKey="capacity" />
               </span>
               <strong>
-                {space.capacity}{' '}
+                {space.capacity}{" "}
                 <LocalizedText
-                  translationKey={space.capacity === 1 ? 'person' : 'people'}
+                  translationKey={space.capacity === 1 ? "person" : "people"}
                 />
               </strong>
             </p>

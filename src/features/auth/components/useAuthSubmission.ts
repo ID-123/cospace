@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useLocale } from '@/components/shared/LocaleProvider';
+import { useState } from "react";
+import { useLocale } from "@/components/shared/LocaleProvider";
 import {
   clearPendingReservation,
   readPendingReservation,
   submitReservation,
-} from '@/features/reservations/pending-reservation';
+} from "@/features/reservations/pending-reservation";
 
 type AuthResponse = {
   error?: {
@@ -14,59 +14,59 @@ type AuthResponse = {
     message?: string;
   };
   user?: {
-    role?: 'user' | 'admin';
+    role?: "user" | "admin";
   };
 };
 
-type AuthMode = 'login' | 'register';
+type AuthMode = "login" | "register";
 
 export function useAuthSubmission(mode: AuthMode) {
   const { t } = useLocale();
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function submit(payload: Record<string, unknown>): Promise<void> {
-    setErrorMessage('');
+    setErrorMessage("");
     setIsSubmitting(true);
 
     try {
       const response = await fetch(`/api/auth/${mode}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       const result = (await response.json()) as AuthResponse;
       if (!response.ok) {
         const authErrors: Record<string, string> = {
-          EMAIL_IN_USE: t('emailInUse'),
-          INVALID_CREDENTIALS: t('invalidCredentials'),
-          INVALID_INPUT: t('invalidInput'),
-          INTERNAL_ERROR: t('requestFailed'),
+          EMAIL_IN_USE: t("emailInUse"),
+          INVALID_CREDENTIALS: t("invalidCredentials"),
+          INVALID_INPUT: t("invalidInput"),
+          INTERNAL_ERROR: t("requestFailed"),
         };
         setErrorMessage(
           (result.error?.code ? authErrors[result.error.code] : undefined) ??
             result.error?.message ??
-            t('requestFailed'),
+            t("requestFailed"),
         );
         return;
       }
 
-      let destination = '/';
-      if (mode === 'register') {
-        destination = result.user?.role === 'admin' ? '/admin' : '/dashboard';
+      let destination = "/";
+      if (mode === "register") {
+        destination = result.user?.role === "admin" ? "/admin" : "/dashboard";
       } else {
-        const next = new URLSearchParams(window.location.search).get('next');
-        destination = next?.startsWith('/') ? next : '/';
+        const next = new URLSearchParams(window.location.search).get("next");
+        destination = next?.startsWith("/") ? next : "/";
       }
 
       const pendingReservation =
-        mode === 'login' ? readPendingReservation() : null;
+        mode === "login" ? readPendingReservation() : null;
       if (pendingReservation) {
         const reservationResponse = await submitReservation(pendingReservation);
         if (reservationResponse.ok) {
           clearPendingReservation();
-          window.location.replace('/dashboard');
+          window.location.replace("/dashboard");
           return;
         }
 
@@ -75,7 +75,7 @@ export function useAuthSubmission(mode: AuthMode) {
 
       window.location.replace(destination);
     } catch {
-      setErrorMessage(t('connectionError'));
+      setErrorMessage(t("connectionError"));
     } finally {
       setIsSubmitting(false);
     }

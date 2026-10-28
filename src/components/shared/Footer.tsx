@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useLocale } from '@/components/shared/LocaleProvider';
+import { useLocale } from "@/components/shared/LocaleProvider";
 
 export function Footer() {
   const { t } = useLocale();
@@ -8,7 +8,7 @@ export function Footer() {
   return (
     <footer className="footer">
       <p>© 2026 CoSpace.</p>
-      <p>{t('footerTagline')}</p>
+      <p>{t("footerTagline")}</p>
     </footer>
   );
 }

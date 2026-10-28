@@ -1,6 +1,6 @@
-import { cookies } from 'next/headers';
-import type { ReactNode } from 'react';
-import { LocaleProvider } from '@/components/shared/LocaleProvider';
+import { cookies } from "next/headers";
+import type { ReactNode } from "react";
+import { LocaleProvider } from "@/components/shared/LocaleProvider";
 
 export async function RequestLocaleProvider({
   children,
@@ -8,8 +8,10 @@ export async function RequestLocaleProvider({
   children: ReactNode;
 }) {
   const cookieStore = await cookies();
-  const initialLocale = cookieStore.get('cospace_locale')?.value === 'en' ? 'en' : 'es';
-  const initialTheme = cookieStore.get('cospace_theme')?.value === 'dark' ? 'dark' : 'light';
+  const initialLocale =
+    cookieStore.get("cospace_locale")?.value === "en" ? "en" : "es";
+  const initialTheme =
+    cookieStore.get("cospace_theme")?.value === "dark" ? "dark" : "light";
 
   return (
     <LocaleProvider initialLocale={initialLocale} initialTheme={initialTheme}>

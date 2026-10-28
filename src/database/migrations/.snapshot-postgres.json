@@ -1,8 +1,6 @@
 {
   "name": "public",
-  "namespaces": [
-    "public"
-  ],
+  "namespaces": ["public"],
   "tables": [
     {
       "name": "app_user",
@@ -150,17 +148,12 @@
           "default": "'user'",
           "comment": null,
           "collation": null,
-          "enumItems": [
-            "user",
-            "admin"
-          ]
+          "enumItems": ["user", "admin"]
         }
       },
       "indexes": [
         {
-          "columnNames": [
-            "email"
-          ],
+          "columnNames": ["email"],
           "composite": false,
           "constraint": true,
           "keyName": "app_user_email_unique",
@@ -168,9 +161,7 @@
           "unique": true
         },
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "composite": false,
           "constraint": true,
           "keyName": "app_user_pkey",
@@ -293,9 +284,7 @@
       },
       "indexes": [
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "composite": false,
           "constraint": true,
           "keyName": "refresh_token_pkey",
@@ -303,9 +292,7 @@
           "unique": true
         },
         {
-          "columnNames": [
-            "token_hash"
-          ],
+          "columnNames": ["token_hash"],
           "composite": false,
           "constraint": true,
           "keyName": "refresh_token_token_hash_unique",
@@ -313,9 +300,7 @@
           "unique": true
         },
         {
-          "columnNames": [
-            "user_id"
-          ],
+          "columnNames": ["user_id"],
           "composite": false,
           "constraint": false,
           "keyName": "refresh_token_user_id_index",
@@ -327,14 +312,10 @@
       "triggers": [],
       "foreignKeys": {
         "refresh_token_user_id_foreign": {
-          "columnNames": [
-            "user_id"
-          ],
+          "columnNames": ["user_id"],
           "constraintName": "refresh_token_user_id_foreign",
           "localTableName": "public.refresh_token",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "referencedTableName": "public.app_user"
         }
       },
@@ -454,10 +435,7 @@
           "default": "'confirmed'",
           "comment": null,
           "collation": null,
-          "enumItems": [
-            "confirmed",
-            "cancelled"
-          ]
+          "enumItems": ["confirmed", "cancelled"]
         },
         "total_price": {
           "name": "total_price",
@@ -494,9 +472,7 @@
       },
       "indexes": [
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "composite": false,
           "constraint": true,
           "keyName": "reservation_pkey",
@@ -504,9 +480,7 @@
           "unique": true
         },
         {
-          "columnNames": [
-            "space_id"
-          ],
+          "columnNames": ["space_id"],
           "composite": false,
           "constraint": false,
           "keyName": "reservation_space_id_index",
@@ -514,12 +488,7 @@
           "unique": false
         },
         {
-          "columnNames": [
-            "space_id",
-            "starts_at",
-            "ends_at",
-            "status"
-          ],
+          "columnNames": ["space_id", "starts_at", "ends_at", "status"],
           "composite": true,
           "constraint": false,
           "keyName": "reservation_space_schedule_index",
@@ -527,9 +496,7 @@
           "unique": false
         },
         {
-          "columnNames": [
-            "user_id"
-          ],
+          "columnNames": ["user_id"],
           "composite": false,
           "constraint": false,
           "keyName": "reservation_user_id_index",
@@ -537,12 +504,7 @@
           "unique": false
         },
         {
-          "columnNames": [
-            "user_id",
-            "starts_at",
-            "ends_at",
-            "status"
-          ],
+          "columnNames": ["user_id", "starts_at", "ends_at", "status"],
           "composite": true,
           "constraint": false,
           "keyName": "reservation_user_schedule_index",
@@ -561,26 +523,18 @@
       "triggers": [],
       "foreignKeys": {
         "reservation_space_id_foreign": {
-          "columnNames": [
-            "space_id"
-          ],
+          "columnNames": ["space_id"],
           "constraintName": "reservation_space_id_foreign",
           "localTableName": "public.reservation",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "referencedTableName": "public.space",
           "updateRule": "cascade"
         },
         "reservation_user_id_foreign": {
-          "columnNames": [
-            "user_id"
-          ],
+          "columnNames": ["user_id"],
           "constraintName": "reservation_user_id_foreign",
           "localTableName": "public.reservation",
-          "referencedColumnNames": [
-            "id"
-          ],
+          "referencedColumnNames": ["id"],
           "referencedTableName": "public.app_user",
           "updateRule": "cascade"
         }
@@ -717,18 +671,12 @@
           "default": null,
           "comment": null,
           "collation": null,
-          "enumItems": [
-            "desk",
-            "meeting_room",
-            "booth"
-          ]
+          "enumItems": ["desk", "meeting_room", "booth"]
         }
       },
       "indexes": [
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "composite": false,
           "constraint": true,
           "keyName": "space_pkey",

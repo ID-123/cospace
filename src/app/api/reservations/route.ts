@@ -1,28 +1,35 @@
-import { LockMode } from '@mikro-orm/core';
-import { NextResponse } from 'next/server';
-import { errorResponse, readValidatedBody, requireUser } from '@/features/auth/http';
-import { getReservationScheduleError, reservationInputSchema } from '@/features/reservations/reservations';
-import type { Reservation } from '@/database/entities/reservation';
-import type { Space } from '@/database/entities/space';
-import type { User } from '@/database/entities/user';
-import { getEntityClass, getOrm } from '@/database/orm';
+import { LockMode } from "@mikro-orm/core";
+import { NextResponse } from "next/server";
+import {
+  errorResponse,
+  readValidatedBody,
+  requireUser,
+} from "@/features/auth/http";
+import {
+  getReservationScheduleError,
+  reservationInputSchema,
+} from "@/features/reservations/reservations";
+import type { Reservation } from "@/database/entities/reservation";
+import type { Space } from "@/database/entities/space";
+import type { User } from "@/database/entities/user";
+import { getEntityClass, getOrm } from "@/database/orm";
 
 const maximumFutureReservations = 3;
 const bookingWindowMilliseconds = 2 * 60 * 60 * 1000;
 
 export async function GET(): Promise<NextResponse> {
   try {
-    const access = await requireUser('consultar la sesión del usuario');
-    if ('response' in access) return access.response;
+    const access = await requireUser("consultar la sesión del usuario");
+    if ("response" in access) return access.response;
     const { user } = access;
 
     const orm = await getOrm();
     const em = orm.em.fork();
-    const reservationEntity = getEntityClass<Reservation>(em, 'Reservation');
+    const reservationEntity = getEntityClass<Reservation>(em, "Reservation");
     const reservations = await em.find(
       reservationEntity,
       { user: user.id },
-      { populate: ['space'], orderBy: { startsAt: 'ASC' } },
+      { populate: ["space"], orderBy: { startsAt: "ASC" } },
     );
 
     return NextResponse.json(
@@ -38,28 +45,33 @@ export async function GET(): Promise<NextResponse> {
         totalPrice: reservation.totalPrice,
         status: reservation.status,
         canCancel:
-          reservation.status === 'confirmed' &&
-          (user.role === 'admin' ||
-            reservation.startsAt.getTime() - Date.now() >= bookingWindowMilliseconds),
+          reservation.status === "confirmed" &&
+          (user.role === "admin" ||
+            reservation.startsAt.getTime() - Date.now() >=
+              bookingWindowMilliseconds),
       })),
     );
   } catch (error) {
-    console.error('Could not load reservations:', error);
-    return errorResponse(500, 'INTERNAL_ERROR', 'No se pudieron consultar tus reservas.');
+    console.error("Could not load reservations:", error);
+    return errorResponse(
+      500,
+      "INTERNAL_ERROR",
+      "No se pudieron consultar tus reservas.",
+    );
   }
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const access = await requireUser('autenticar la solicitud de reserva');
-  if ('response' in access) return access.response;
+  const access = await requireUser("autenticar la solicitud de reserva");
+  if ("response" in access) return access.response;
   const { user } = access;
 
   const input = await readValidatedBody(
     request,
     reservationInputSchema,
-    'Revisa los datos de la reserva.',
+    "Revisa los datos de la reserva.",
   );
-  if ('response' in input) return input.response;
+  if ("response" in input) return input.response;
 
   const startsAt = new Date(input.data.startsAt);
   const now = new Date();
@@ -69,7 +81,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     now,
   );
   if (scheduleError) {
-    return errorResponse(400, 'INVALID_SCHEDULE', scheduleError);
+    return errorResponse(400, "INVALID_SCHEDULE", scheduleError);
   }
 
   const endsAt = new Date(
@@ -79,9 +91,9 @@ export async function POST(request: Request): Promise<NextResponse> {
   try {
     const orm = await getOrm();
     const em = orm.em.fork();
-    const userEntity = getEntityClass<User>(em, 'User');
-    const spaceEntity = getEntityClass<Space>(em, 'Space');
-    const reservationEntity = getEntityClass<Reservation>(em, 'Reservation');
+    const userEntity = getEntityClass<User>(em, "User");
+    const spaceEntity = getEntityClass<Space>(em, "Space");
+    const reservationEntity = getEntityClass<Reservation>(em, "Reservation");
     const result = await em.transactional(
       async (transaction) => {
         const lockedUser = await transaction.findOne(
@@ -89,44 +101,46 @@ export async function POST(request: Request): Promise<NextResponse> {
           { id: user.id, isActive: true },
           { lockMode: LockMode.PESSIMISTIC_WRITE },
         );
-        if (!lockedUser) return { error: 'UNAUTHENTICATED' as const };
+        if (!lockedUser) return { error: "UNAUTHENTICATED" as const };
 
         const space = await transaction.findOne(
           spaceEntity,
           { id: input.data.spaceId, isActive: true },
           { lockMode: LockMode.PESSIMISTIC_WRITE },
         );
-        if (!space) return { error: 'SPACE_NOT_FOUND' as const };
+        if (!space) return { error: "SPACE_NOT_FOUND" as const };
 
         const overlappingSpaceReservation = await transaction.findOne(
           reservationEntity,
           {
             space,
-            status: 'confirmed',
+            status: "confirmed",
             startsAt: { $lt: endsAt },
             endsAt: { $gt: startsAt },
           },
         );
-        if (overlappingSpaceReservation) return { error: 'SPACE_UNAVAILABLE' as const };
+        if (overlappingSpaceReservation)
+          return { error: "SPACE_UNAVAILABLE" as const };
 
         const overlappingUserReservation = await transaction.findOne(
           reservationEntity,
           {
             user: lockedUser,
-            status: 'confirmed',
+            status: "confirmed",
             startsAt: { $lt: endsAt },
             endsAt: { $gt: startsAt },
           },
         );
-        if (overlappingUserReservation) return { error: 'USER_SCHEDULE_CONFLICT' as const };
+        if (overlappingUserReservation)
+          return { error: "USER_SCHEDULE_CONFLICT" as const };
 
         const futureReservations = await transaction.count(reservationEntity, {
           user: lockedUser,
-          status: 'confirmed',
+          status: "confirmed",
           startsAt: { $gt: now },
         });
         if (futureReservations >= maximumFutureReservations) {
-          return { error: 'RESERVATION_LIMIT' as const };
+          return { error: "RESERVATION_LIMIT" as const };
         }
 
         const reservation = transaction.create(reservationEntity, {
@@ -136,7 +150,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           endsAt,
           durationHours: input.data.durationHours,
           totalPrice: space.pricePerHour * input.data.durationHours,
-          status: 'confirmed',
+          status: "confirmed",
         });
         transaction.persist(reservation);
         await transaction.flush();
@@ -156,24 +170,47 @@ export async function POST(request: Request): Promise<NextResponse> {
       { clear: true },
     );
 
-    if ('error' in result) {
+    if ("error" in result) {
       switch (result.error) {
-        case 'UNAUTHENTICATED':
-          return errorResponse(401, result.error, 'Inicia sesión para crear una reserva.');
-        case 'SPACE_NOT_FOUND':
-          return errorResponse(404, result.error, 'El espacio no está disponible.');
-        case 'SPACE_UNAVAILABLE':
-          return errorResponse(409, result.error, 'El espacio ya está reservado en ese horario.');
-        case 'USER_SCHEDULE_CONFLICT':
-          return errorResponse(409, result.error, 'Ya tienes otra reserva en ese horario.');
-        case 'RESERVATION_LIMIT':
-          return errorResponse(409, result.error, 'Ya tienes 3 reservas futuras confirmadas.');
+        case "UNAUTHENTICATED":
+          return errorResponse(
+            401,
+            result.error,
+            "Inicia sesión para crear una reserva.",
+          );
+        case "SPACE_NOT_FOUND":
+          return errorResponse(
+            404,
+            result.error,
+            "El espacio no está disponible.",
+          );
+        case "SPACE_UNAVAILABLE":
+          return errorResponse(
+            409,
+            result.error,
+            "El espacio ya está reservado en ese horario.",
+          );
+        case "USER_SCHEDULE_CONFLICT":
+          return errorResponse(
+            409,
+            result.error,
+            "Ya tienes otra reserva en ese horario.",
+          );
+        case "RESERVATION_LIMIT":
+          return errorResponse(
+            409,
+            result.error,
+            "Ya tienes 3 reservas futuras confirmadas.",
+          );
       }
     }
 
-    return NextResponse.json({ reservation: result.reservation }, { status: 201 });
+    return NextResponse.json(
+      { reservation: result.reservation },
+      { status: 201 },
+    );
   } catch (error) {
-    console.error('Could not create reservation:', error);
-    return errorResponse(500, 'INTERNAL_ERROR', 'No se pudo crear la reserva.');
+    console.error("Could not create reservation:", error);
+    return errorResponse(500, "INTERNAL_ERROR", "No se pudo crear la reserva.");
   }
 }

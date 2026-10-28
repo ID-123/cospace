@@ -1,33 +1,33 @@
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-import { errorResponse } from '@/features/auth/http';
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
+import { errorResponse } from "@/features/auth/http";
 import {
   createAccessToken,
   REFRESH_COOKIE,
   REFRESH_TOKEN_SECONDS,
-} from '@/features/auth/token';
+} from "@/features/auth/token";
 import {
   clearSessionCookies,
   hashRefreshToken,
   setSessionCookies,
   verifyRefreshToken,
-} from '@/features/auth/session';
-import type { RefreshToken } from '@/database/entities/user';
-import { getEntityClass, getOrm } from '@/database/orm';
+} from "@/features/auth/session";
+import type { RefreshToken } from "@/database/entities/user";
+import { getEntityClass, getOrm } from "@/database/orm";
 
 export async function POST(): Promise<NextResponse> {
   const cookieStore = await cookies();
   const refreshToken = cookieStore.get(REFRESH_COOKIE)?.value;
 
   if (!refreshToken) {
-    const response = errorResponse(401, 'UNAUTHENTICATED', 'Inicia sesión.');
+    const response = errorResponse(401, "UNAUTHENTICATED", "Inicia sesión.");
     clearSessionCookies(response);
     return response;
   }
 
   const refreshUserId = await verifyRefreshToken(refreshToken);
   if (!refreshUserId) {
-    const response = errorResponse(401, 'UNAUTHENTICATED', 'Inicia sesión.');
+    const response = errorResponse(401, "UNAUTHENTICATED", "Inicia sesión.");
     clearSessionCookies(response);
     return response;
   }
@@ -35,11 +35,11 @@ export async function POST(): Promise<NextResponse> {
   try {
     const orm = await getOrm();
     const em = orm.em.fork();
-    const refreshTokenEntity = getEntityClass<RefreshToken>(em, 'RefreshToken');
+    const refreshTokenEntity = getEntityClass<RefreshToken>(em, "RefreshToken");
     const tokenRecord = await em.findOne(
       refreshTokenEntity,
       { tokenHash: hashRefreshToken(refreshToken) },
-      { populate: ['user'] },
+      { populate: ["user"] },
     );
 
     if (
@@ -54,7 +54,7 @@ export async function POST(): Promise<NextResponse> {
         await em.flush();
       }
 
-      const response = errorResponse(401, 'UNAUTHENTICATED', 'Inicia sesión.');
+      const response = errorResponse(401, "UNAUTHENTICATED", "Inicia sesión.");
       clearSessionCookies(response);
       return response;
     }
@@ -72,7 +72,11 @@ export async function POST(): Promise<NextResponse> {
     setSessionCookies(response, { accessToken, refreshToken });
     return response;
   } catch (error) {
-    console.error('Token refresh failed:', error);
-    return errorResponse(500, 'INTERNAL_ERROR', 'No se pudo renovar la sesión.');
+    console.error("Token refresh failed:", error);
+    return errorResponse(
+      500,
+      "INTERNAL_ERROR",
+      "No se pudo renovar la sesión.",
+    );
   }
 }

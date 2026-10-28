@@ -1,8 +1,15 @@
-'use client';
+"use client";
 
-import { useLocale, type TranslationKey } from '@/components/shared/LocaleProvider';
+import {
+  useLocale,
+  type TranslationKey,
+} from "@/components/shared/LocaleProvider";
 
-export function LocalizedText({ translationKey }: { translationKey: TranslationKey }) {
+export function LocalizedText({
+  translationKey,
+}: {
+  translationKey: TranslationKey;
+}) {
   const { t } = useLocale();
   return <>{t(translationKey)}</>;
 }

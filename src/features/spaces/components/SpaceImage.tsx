@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import type { Space } from '@/database/entities/space';
-import { useLocale } from '@/components/shared/LocaleProvider';
+import Image from "next/image";
+import type { Space } from "@/database/entities/space";
+import { useLocale } from "@/components/shared/LocaleProvider";
 
-const spaceImages: Record<Space['type'], string> = {
-  desk: '/images/space-desk.svg',
-  meeting_room: '/images/space-meeting-room.svg',
-  booth: '/images/space-booth.svg',
+const spaceImages: Record<Space["type"], string> = {
+  desk: "/images/space-desk.svg",
+  meeting_room: "/images/space-meeting-room.svg",
+  booth: "/images/space-booth.svg",
 };
 
 type SpaceImageProps = {
-  type: Space['type'];
+  type: Space["type"];
   name: string;
   className?: string;
   width: number;
@@ -33,10 +33,10 @@ export function SpaceImage({
     <Image
       className={className}
       src={spaceImages[type]}
-      alt={`${t('spaceImage')} ${name}`}
+      alt={`${t("spaceImage")} ${name}`}
       width={width}
       height={height}
-      loading={eager ? 'eager' : 'lazy'}
+      loading={eager ? "eager" : "lazy"}
     />
   );
 }

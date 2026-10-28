@@ -1,14 +1,17 @@
-import { randomUUID } from 'node:crypto';
-import { defineEntity, p } from '@mikro-orm/core';
+import { randomUUID } from "node:crypto";
+import { defineEntity, p } from "@mikro-orm/core";
 
 export const SpaceSchema = defineEntity({
-  name: 'Space',
-  tableName: 'space',
+  name: "Space",
+  tableName: "space",
   properties: {
-    id: p.uuid().primary().onCreate(() => randomUUID()),
+    id: p
+      .uuid()
+      .primary()
+      .onCreate(() => randomUUID()),
     name: p.string(),
     description: p.string(),
-    type: p.enum(['desk', 'meeting_room', 'booth']),
+    type: p.enum(["desk", "meeting_room", "booth"]),
     capacity: p.integer(),
     pricePerHour: p.integer(),
     isActive: p.boolean().default(true),

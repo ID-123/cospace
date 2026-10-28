@@ -1,6 +1,6 @@
-import type { EntityManager, EntityName } from '@mikro-orm/core';
-import { MikroORM } from '@mikro-orm/postgresql';
-import config from '../mikro-orm.config';
+import type { EntityManager, EntityName } from "@mikro-orm/core";
+import { MikroORM } from "@mikro-orm/postgresql";
+import config from "../mikro-orm.config";
 
 export function getEntityClass<T extends object>(
   em: EntityManager,
@@ -11,7 +11,9 @@ export function getEntityClass<T extends object>(
   );
 
   if (!metadata) {
-    throw new Error(`MikroORM metadata for entity "${entityName}" was not found`);
+    throw new Error(
+      `MikroORM metadata for entity "${entityName}" was not found`,
+    );
   }
 
   return metadata.class;

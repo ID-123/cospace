@@ -1,20 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { ACCESS_COOKIE, REFRESH_COOKIE, verifyAccessToken } from '@/features/auth/token';
+import { NextRequest, NextResponse } from "next/server";
+import {
+  ACCESS_COOKIE,
+  REFRESH_COOKIE,
+  verifyAccessToken,
+} from "@/features/auth/token";
 
 function matchesRoute(pathname: string, route: string): boolean {
   return pathname === route || pathname.startsWith(`${route}/`);
 }
 
 function isProtectedRoute(pathname: string): boolean {
-  return ['/dashboard', '/admin'].some((route) => matchesRoute(pathname, route));
+  return ["/dashboard", "/admin"].some((route) =>
+    matchesRoute(pathname, route),
+  );
 }
 
 function isAdminRoute(pathname: string): boolean {
-  return matchesRoute(pathname, '/admin');
+  return matchesRoute(pathname, "/admin");
 }
 
 function isAuthRoute(pathname: string): boolean {
-  return pathname === '/login' || pathname === '/register';
+  return pathname === "/login" || pathname === "/register";
 }
 
 function responseWithCookies(
@@ -22,7 +28,7 @@ function responseWithCookies(
   cookieHeaders: string[],
 ): NextResponse {
   for (const cookie of cookieHeaders) {
-    response.headers.append('Set-Cookie', cookie);
+    response.headers.append("Set-Cookie", cookie);
   }
 
   return response;
@@ -30,7 +36,7 @@ function responseWithCookies(
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const pathname = request.nextUrl.pathname;
-  if (pathname === '/api/auth/refresh') {
+  if (pathname === "/api/auth/refresh") {
     return NextResponse.next();
   }
 
@@ -43,11 +49,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   if (!session && refreshToken) {
     try {
       const refreshResponse = await fetch(
-        new URL('/api/auth/refresh', request.url),
+        new URL("/api/auth/refresh", request.url),
         {
-          method: 'POST',
+          method: "POST",
           headers: { cookie: `${REFRESH_COOKIE}=${refreshToken}` },
-          cache: 'no-store',
+          cache: "no-store",
         },
       );
 
@@ -55,11 +61,13 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
       if (refreshResponse.ok) {
         const accessCookie = refreshedCookies
-          .map((cookie) => cookie.split(';', 1)[0])
+          .map((cookie) => cookie.split(";", 1)[0])
           .find((cookie) => cookie.startsWith(`${ACCESS_COOKIE}=`));
 
         if (accessCookie) {
-          const renewedAccessToken = accessCookie.slice(ACCESS_COOKIE.length + 1);
+          const renewedAccessToken = accessCookie.slice(
+            ACCESS_COOKIE.length + 1,
+          );
           session = await verifyAccessToken(renewedAccessToken);
 
           if (session) {
@@ -69,38 +77,40 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
             requestCookies.set(ACCESS_COOKIE, renewedAccessToken);
             const requestHeaders = new Headers(request.headers);
             requestHeaders.set(
-              'cookie',
-              [...requestCookies].map(([name, value]) => `${name}=${value}`).join('; '),
+              "cookie",
+              [...requestCookies]
+                .map(([name, value]) => `${name}=${value}`)
+                .join("; "),
             );
             forwardedRequestHeaders = requestHeaders;
           }
         }
       } else if (refreshResponse.status >= 500) {
-        console.error('Session refresh returned a server error.');
+        console.error("Session refresh returned a server error.");
       }
     } catch (error) {
-      console.error('Session refresh request failed:', error);
+      console.error("Session refresh request failed:", error);
     }
   }
 
   if (isProtectedRoute(pathname) && !session) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('next', pathname);
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", pathname);
     return responseWithCookies(
       NextResponse.redirect(loginUrl),
       refreshedCookies,
     );
   }
 
-  if (isAdminRoute(pathname) && session?.role !== 'admin') {
+  if (isAdminRoute(pathname) && session?.role !== "admin") {
     return responseWithCookies(
-      NextResponse.redirect(new URL('/dashboard', request.url)),
+      NextResponse.redirect(new URL("/dashboard", request.url)),
       refreshedCookies,
     );
   }
 
   if (isAuthRoute(pathname) && session) {
-    const destination = session.role === 'admin' ? '/admin' : '/dashboard';
+    const destination = session.role === "admin" ? "/admin" : "/dashboard";
     return responseWithCookies(
       NextResponse.redirect(new URL(destination, request.url)),
       refreshedCookies,
@@ -116,5 +126,5 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

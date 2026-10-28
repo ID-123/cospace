@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
-import type { ZodType } from 'zod';
-import { getAuthenticatedUser } from '@/features/auth/current-user';
-import { credentialsSchema } from '@/features/auth/validation';
-import type { User } from '@/database/entities/user';
+import { NextResponse } from "next/server";
+import type { ZodType } from "zod";
+import { getAuthenticatedUser } from "@/features/auth/current-user";
+import { credentialsSchema } from "@/features/auth/validation";
+import type { User } from "@/database/entities/user";
 
 type Credentials = {
   email: string;
@@ -22,7 +22,7 @@ export function errorResponse(
 }
 
 export async function requireUser(
-  logContext = 'authenticate request',
+  logContext = "authenticate request",
 ): Promise<UserAccess> {
   try {
     const user = await getAuthenticatedUser();
@@ -30,22 +30,26 @@ export async function requireUser(
   } catch (error) {
     console.error(`Could not ${logContext}:`, error);
     return {
-      response: errorResponse(500, 'INTERNAL_ERROR', 'No se pudo verificar la sesión.'),
+      response: errorResponse(
+        500,
+        "INTERNAL_ERROR",
+        "No se pudo verificar la sesión.",
+      ),
     };
   }
 
   return {
-    response: errorResponse(401, 'UNAUTHENTICATED', 'Inicia sesión.'),
+    response: errorResponse(401, "UNAUTHENTICATED", "Inicia sesión."),
   };
 }
 
 export async function requireAdmin(
-  forbiddenMessage = 'Solo un administrador puede realizar esta acción.',
+  forbiddenMessage = "Solo un administrador puede realizar esta acción.",
 ): Promise<UserAccess> {
   const access = await requireUser();
-  if ('response' in access) return access;
-  if (access.user.role !== 'admin') {
-    return { response: errorResponse(403, 'FORBIDDEN', forbiddenMessage) };
+  if ("response" in access) return access;
+  if (access.user.role !== "admin") {
+    return { response: errorResponse(403, "FORBIDDEN", forbiddenMessage) };
   }
   return access;
 }
@@ -53,13 +57,13 @@ export async function requireAdmin(
 export async function readValidatedBody<T>(
   request: Request,
   schema: ZodType<T>,
-  invalidMessage = 'Revisa los datos enviados.',
+  invalidMessage = "Revisa los datos enviados.",
 ): Promise<ValidatedBody<T>> {
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return { response: errorResponse(400, 'INVALID_INPUT', invalidMessage) };
+    return { response: errorResponse(400, "INVALID_INPUT", invalidMessage) };
   }
 
   const validation = schema.safeParse(body);
@@ -67,7 +71,7 @@ export async function readValidatedBody<T>(
     return {
       response: errorResponse(
         400,
-        'INVALID_INPUT',
+        "INVALID_INPUT",
         validation.error.issues[0]?.message ?? invalidMessage,
       ),
     };

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useLocale } from '@/components/shared/LocaleProvider';
-import type { ActiveSpace } from '@/database/queries/spaces';
-import { SpaceImage } from '@/features/spaces/components/SpaceImage';
+import Link from "next/link";
+import { useLocale } from "@/components/shared/LocaleProvider";
+import type { ActiveSpace } from "@/database/queries/spaces";
+import { SpaceImage } from "@/features/spaces/components/SpaceImage";
 
 export function HomeContent({
   isAuthenticated,
@@ -18,20 +18,23 @@ export function HomeContent({
     <main className="home-page">
       <section className="home-hero" aria-labelledby="home-title">
         <div className="home-hero__content">
-          <p className="home-hero__eyebrow">{t('homeEyebrow')}</p>
+          <p className="home-hero__eyebrow">{t("homeEyebrow")}</p>
           <h1 id="home-title">
-            {t('homeTitle')}
+            {t("homeTitle")}
             <br />
-            <span>{t('homeTitleAccent')}</span>
+            <span>{t("homeTitleAccent")}</span>
           </h1>
-          <p className="home-hero__description">{t('homeDescription')}</p>
+          <p className="home-hero__description">{t("homeDescription")}</p>
           <div className="home-hero__actions">
             <Link className="home-button home-button--primary" href="/spaces">
-              {t('exploreSpaces')}
+              {t("exploreSpaces")}
             </Link>
             {!isAuthenticated ? (
-              <Link className="home-button home-button--secondary" href="/register">
-                {t('createAccount')}
+              <Link
+                className="home-button home-button--secondary"
+                href="/register"
+              >
+                {t("createAccount")}
               </Link>
             ) : null}
           </div>
@@ -54,17 +57,17 @@ export function HomeContent({
       <section className="home-types" aria-labelledby="home-types-title">
         <div className="home-types__heading">
           <div>
-            <p className="home-section-eyebrow">{t('homeSectionEyebrow')}</p>
-            <h2 id="home-types-title">{t('homeSectionTitle')}</h2>
+            <p className="home-section-eyebrow">{t("homeSectionEyebrow")}</p>
+            <h2 id="home-types-title">{t("homeSectionTitle")}</h2>
           </div>
           <Link href="/spaces" className="home-types__link">
-            {t('seeAllSpaces')} <span aria-hidden="true">→</span>
+            {t("seeAllSpaces")} <span aria-hidden="true">→</span>
           </Link>
         </div>
 
         <div className="home-types__grid">
           {spaces === null ? (
-            <p className="home-types__empty">{t('loadingSpaces')}</p>
+            <p className="home-types__empty">{t("loadingSpaces")}</p>
           ) : spaces.length > 0 ? (
             spaces.map((space, index) => (
               <Link
@@ -87,7 +90,7 @@ export function HomeContent({
               </Link>
             ))
           ) : (
-            <p className="home-types__empty">{t('noSpaces')}</p>
+            <p className="home-types__empty">{t("noSpaces")}</p>
           )}
         </div>
       </section>

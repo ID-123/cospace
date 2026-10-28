@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, type SubmitEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { useLocale } from '@/components/shared/LocaleProvider';
+import { useState, type SubmitEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useLocale } from "@/components/shared/LocaleProvider";
 
 type Profile = {
   firstName: string;
@@ -20,13 +20,13 @@ type ApiError = {
 
 function getErrorCode(result: unknown): string | undefined {
   if (
-    typeof result !== 'object' ||
+    typeof result !== "object" ||
     result === null ||
-    !('error' in result) ||
-    typeof result.error !== 'object' ||
+    !("error" in result) ||
+    typeof result.error !== "object" ||
     result.error === null ||
-    !('code' in result.error) ||
-    typeof result.error.code !== 'string'
+    !("code" in result.error) ||
+    typeof result.error.code !== "string"
   ) {
     return undefined;
   }
@@ -43,53 +43,51 @@ export function AccountSettings({
   const [profile, setProfile] = useState(initialProfile);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
-  const [profileMessage, setProfileMessage] = useState('');
-  const [profileError, setProfileError] = useState('');
-  const [passwordMessage, setPasswordMessage] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [profileMessage, setProfileMessage] = useState("");
+  const [profileError, setProfileError] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   async function saveProfile(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    setProfileMessage('');
-    setProfileError('');
+    setProfileMessage("");
+    setProfileError("");
     setIsSavingProfile(true);
 
     const formData = new FormData(event.currentTarget);
     const payload = {
-      firstName: String(formData.get('firstName')),
-      lastName: String(formData.get('lastName')),
-      email: String(formData.get('email')),
-      phone: String(formData.get('phone')),
+      firstName: String(formData.get("firstName")),
+      lastName: String(formData.get("lastName")),
+      email: String(formData.get("email")),
+      phone: String(formData.get("phone")),
     };
 
     try {
-      const response = await fetch('/api/account/profile', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/account/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const result = (await response.json()) as
-        | { user: Profile }
-        | ApiError;
-      if (!response.ok || !('user' in result)) {
+      const result = (await response.json()) as { user: Profile } | ApiError;
+      if (!response.ok || !("user" in result)) {
         const code = getErrorCode(result);
         setProfileError(
-          code === 'EMAIL_IN_USE'
-            ? t('emailInUse')
-            : code === 'UNAUTHENTICATED'
-              ? t('unauthenticated')
-              : code === 'INVALID_INPUT'
-                ? t('invalidInput')
-                : t('profileSaveFailed'),
+          code === "EMAIL_IN_USE"
+            ? t("emailInUse")
+            : code === "UNAUTHENTICATED"
+              ? t("unauthenticated")
+              : code === "INVALID_INPUT"
+                ? t("invalidInput")
+                : t("profileSaveFailed"),
         );
         return;
       }
 
       setProfile(result.user);
-      setProfileMessage(t('profileSaved'));
+      setProfileMessage(t("profileSaved"));
       router.refresh();
     } catch {
-      setProfileError(t('connectionError'));
+      setProfileError(t("connectionError"));
     } finally {
       setIsSavingProfile(false);
     }
@@ -97,43 +95,43 @@ export function AccountSettings({
 
   async function changePassword(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    setPasswordMessage('');
-    setPasswordError('');
+    setPasswordMessage("");
+    setPasswordError("");
     setIsSavingPassword(true);
 
     const formData = new FormData(event.currentTarget);
     const payload = {
-      currentPassword: String(formData.get('currentPassword')),
-      newPassword: String(formData.get('newPassword')),
-      confirmPassword: String(formData.get('confirmPassword')),
+      currentPassword: String(formData.get("currentPassword")),
+      newPassword: String(formData.get("newPassword")),
+      confirmPassword: String(formData.get("confirmPassword")),
     };
 
     try {
-      const response = await fetch('/api/account/password', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/account/password", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const result = (await response.json()) as ApiError;
       if (!response.ok) {
         const code = getErrorCode(result);
         setPasswordError(
-          code === 'INVALID_CURRENT_PASSWORD'
-            ? t('invalidCurrentPassword')
-            : code === 'UNAUTHENTICATED'
-              ? t('unauthenticated')
-              : code === 'INVALID_INPUT'
-                ? t('invalidInput')
-                : t('passwordChangeFailed'),
+          code === "INVALID_CURRENT_PASSWORD"
+            ? t("invalidCurrentPassword")
+            : code === "UNAUTHENTICATED"
+              ? t("unauthenticated")
+              : code === "INVALID_INPUT"
+                ? t("invalidInput")
+                : t("passwordChangeFailed"),
         );
         return;
       }
 
       event.currentTarget.reset();
-      setPasswordMessage(t('passwordUpdated'));
+      setPasswordMessage(t("passwordUpdated"));
       router.refresh();
     } catch {
-      setPasswordError(t('connectionError'));
+      setPasswordError(t("connectionError"));
     } finally {
       setIsSavingPassword(false);
     }
@@ -141,13 +139,13 @@ export function AccountSettings({
 
   return (
     <>
-      <p className="home-section-eyebrow">{t('accountEyebrow')}</p>
-      <h1>{t('profileTitle')}</h1>
+      <p className="home-section-eyebrow">{t("accountEyebrow")}</p>
+      <h1>{t("profileTitle")}</h1>
       <div className="profile-settings">
         <form className="profile-settings__form" onSubmit={saveProfile}>
-          <h2>{t('personalDetails')}</h2>
+          <h2>{t("personalDetails")}</h2>
           <label>
-            {t('firstName')}
+            {t("firstName")}
             <input
               name="firstName"
               autoComplete="given-name"
@@ -161,7 +159,7 @@ export function AccountSettings({
             />
           </label>
           <label>
-            {t('lastName')}
+            {t("lastName")}
             <input
               name="lastName"
               autoComplete="family-name"
@@ -175,7 +173,7 @@ export function AccountSettings({
             />
           </label>
           <label>
-            {t('email')}
+            {t("email")}
             <input
               name="email"
               type="email"
@@ -189,7 +187,7 @@ export function AccountSettings({
             />
           </label>
           <label>
-            {t('phone')}
+            {t("phone")}
             <input
               name="phone"
               type="tel"
@@ -204,20 +202,28 @@ export function AccountSettings({
             />
           </label>
           {profileError ? (
-            <p className="auth-form__error" role="alert">{profileError}</p>
+            <p className="auth-form__error" role="alert">
+              {profileError}
+            </p>
           ) : null}
           {profileMessage ? (
-            <p className="profile-settings__success" role="status">{profileMessage}</p>
+            <p className="profile-settings__success" role="status">
+              {profileMessage}
+            </p>
           ) : null}
-          <button className="auth-form__submit" type="submit" disabled={isSavingProfile}>
-            {isSavingProfile ? t('saving') : t('saveChanges')}
+          <button
+            className="auth-form__submit"
+            type="submit"
+            disabled={isSavingProfile}
+          >
+            {isSavingProfile ? t("saving") : t("saveChanges")}
           </button>
         </form>
 
         <form className="profile-settings__form" onSubmit={changePassword}>
-          <h2>{t('changePassword')}</h2>
+          <h2>{t("changePassword")}</h2>
           <label>
-            {t('currentPassword')}
+            {t("currentPassword")}
             <input
               name="currentPassword"
               type="password"
@@ -226,7 +232,7 @@ export function AccountSettings({
             />
           </label>
           <label>
-            {t('newPassword')}
+            {t("newPassword")}
             <input
               name="newPassword"
               type="password"
@@ -236,7 +242,7 @@ export function AccountSettings({
             />
           </label>
           <label>
-            {t('confirmPassword')}
+            {t("confirmPassword")}
             <input
               name="confirmPassword"
               type="password"
@@ -246,13 +252,21 @@ export function AccountSettings({
             />
           </label>
           {passwordError ? (
-            <p className="auth-form__error" role="alert">{passwordError}</p>
+            <p className="auth-form__error" role="alert">
+              {passwordError}
+            </p>
           ) : null}
           {passwordMessage ? (
-            <p className="profile-settings__success" role="status">{passwordMessage}</p>
+            <p className="profile-settings__success" role="status">
+              {passwordMessage}
+            </p>
           ) : null}
-          <button className="auth-form__submit" type="submit" disabled={isSavingPassword}>
-            {isSavingPassword ? t('saving') : t('updatePassword')}
+          <button
+            className="auth-form__submit"
+            type="submit"
+            disabled={isSavingPassword}
+          >
+            {isSavingPassword ? t("saving") : t("updatePassword")}
           </button>
         </form>
       </div>

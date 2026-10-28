@@ -1,8 +1,8 @@
-import type { ReactNode } from 'react';
-import Link from 'next/link';
-import { Suspense } from 'react';
-import { redirect } from 'next/navigation';
-import { getCurrentSession } from '@/features/auth/session';
+import type { ReactNode } from "react";
+import Link from "next/link";
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { getCurrentSession } from "@/features/auth/session";
 
 type AuthLayoutProps = {
   children: ReactNode;
@@ -20,7 +20,7 @@ async function AuthLayoutContent({ children }: AuthLayoutProps) {
   const session = await getCurrentSession();
 
   if (session) {
-    redirect(session.role === 'admin' ? '/admin' : '/dashboard');
+    redirect(session.role === "admin" ? "/admin" : "/dashboard");
   }
 
   return (

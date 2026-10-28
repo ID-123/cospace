@@ -1,61 +1,68 @@
-import 'dotenv/config';
-import { MikroORM } from '@mikro-orm/postgresql';
-import config from '../mikro-orm.config';
-import { hashPassword } from '../features/auth/password';
-import { User } from './entities/user';
-import { Space } from './entities/space';
+import "dotenv/config";
+import { MikroORM } from "@mikro-orm/postgresql";
+import config from "../mikro-orm.config";
+import { hashPassword } from "../features/auth/password";
+import { User } from "./entities/user";
+import { Space } from "./entities/space";
 
 const sampleSpaces = [
   {
-    name: 'Escritorio Aurora',
-    legacyName: 'Escritorio flexible',
-    description: 'Puesto individual junto a ventanales, con silla ergonómica y conexión eléctrica.',
-    type: 'desk' as const,
+    name: "Escritorio Aurora",
+    legacyName: "Escritorio flexible",
+    description:
+      "Puesto individual junto a ventanales, con silla ergonómica y conexión eléctrica.",
+    type: "desk" as const,
     capacity: 1,
     pricePerHour: 12000,
   },
   {
-    name: 'Escritorio Terraza',
-    description: 'Estación de trabajo individual en una zona abierta con luz natural.',
-    type: 'desk' as const,
+    name: "Escritorio Terraza",
+    description:
+      "Estación de trabajo individual en una zona abierta con luz natural.",
+    type: "desk" as const,
     capacity: 1,
     pricePerHour: 15000,
   },
   {
-    name: 'Escritorio Central',
-    legacyName: 'Escritorio de prueba',
-    description: 'Puesto individual cerca de las áreas comunes, con mesa amplia y acceso a tomas eléctricas.',
-    type: 'desk' as const,
+    name: "Escritorio Central",
+    legacyName: "Escritorio de prueba",
+    description:
+      "Puesto individual cerca de las áreas comunes, con mesa amplia y acceso a tomas eléctricas.",
+    type: "desk" as const,
     capacity: 1,
     pricePerHour: 11000,
   },
   {
-    name: 'Sala Nube',
-    legacyName: 'Sala de reuniones',
-    description: 'Sala privada para equipos pequeños, con pantalla y pizarra para reuniones.',
-    type: 'meeting_room' as const,
+    name: "Sala Nube",
+    legacyName: "Sala de reuniones",
+    description:
+      "Sala privada para equipos pequeños, con pantalla y pizarra para reuniones.",
+    type: "meeting_room" as const,
     capacity: 8,
     pricePerHour: 50000,
   },
   {
-    name: 'Sala Horizonte',
-    description: 'Sala amplia para talleres y reuniones de equipo con pantalla de presentación.',
-    type: 'meeting_room' as const,
+    name: "Sala Horizonte",
+    description:
+      "Sala amplia para talleres y reuniones de equipo con pantalla de presentación.",
+    type: "meeting_room" as const,
     capacity: 12,
     pricePerHour: 75000,
   },
   {
-    name: 'Cabina Órbita',
-    legacyName: 'Cabina de concentración',
-    description: 'Cabina insonorizada para videollamadas, entrevistas y trabajo que requiere privacidad.',
-    type: 'booth' as const,
+    name: "Cabina Órbita",
+    legacyName: "Cabina de concentración",
+    description:
+      "Cabina insonorizada para videollamadas, entrevistas y trabajo que requiere privacidad.",
+    type: "booth" as const,
     capacity: 1,
     pricePerHour: 18000,
   },
   {
-    name: 'Cabina Silencio',
-    description: 'Espacio individual aislado del ruido común, ideal para llamadas y concentración.',
-    type: 'booth' as const,
+    name: "Cabina Silencio",
+    description:
+      "Espacio individual aislado del ruido común, ideal para llamadas y concentración.",
+    type: "booth" as const,
     capacity: 1,
     pricePerHour: 16000,
   },
@@ -66,32 +73,32 @@ async function seedAdmin(): Promise<void> {
   const password = process.env.ADMIN_PASSWORD;
 
   if (!email || !password) {
-    throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD must be set in .env');
+    throw new Error("ADMIN_EMAIL and ADMIN_PASSWORD must be set in .env");
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    throw new Error('ADMIN_EMAIL must be a valid email address');
+    throw new Error("ADMIN_EMAIL must be a valid email address");
   }
 
   if (password.length < 8) {
-    throw new Error('ADMIN_PASSWORD must contain at least 8 characters');
+    throw new Error("ADMIN_PASSWORD must contain at least 8 characters");
   }
 
-  if (Buffer.byteLength(password, 'utf8') > 72) {
-    throw new Error('ADMIN_PASSWORD must not exceed 72 bytes');
+  if (Buffer.byteLength(password, "utf8") > 72) {
+    throw new Error("ADMIN_PASSWORD must not exceed 72 bytes");
   }
 
   const orm = await MikroORM.init(config);
-  const firstName = process.env.ADMIN_FIRST_NAME?.trim() || 'Administrador';
-  const lastName = process.env.ADMIN_LAST_NAME?.trim() || 'CoSpace';
-  const phone = process.env.ADMIN_PHONE?.trim() || '0000000000';
+  const firstName = process.env.ADMIN_FIRST_NAME?.trim() || "Administrador";
+  const lastName = process.env.ADMIN_LAST_NAME?.trim() || "CoSpace";
+  const phone = process.env.ADMIN_PHONE?.trim() || "0000000000";
 
   try {
     const em = orm.em.fork();
     const existingUser = await em.findOne(User, { email });
 
     if (existingUser) {
-      if (existingUser.role !== 'admin') {
+      if (existingUser.role !== "admin") {
         throw new Error(
           `The account "${email}" already exists and is not an administrator`,
         );
@@ -113,7 +120,7 @@ async function seedAdmin(): Promise<void> {
       if (profileUpdated) await em.flush();
 
       console.info(
-        `Administrator "${email}" already exists${profileUpdated ? '; profile completed.' : '; no changes made.'}`,
+        `Administrator "${email}" already exists${profileUpdated ? "; profile completed." : "; no changes made."}`,
       );
     } else {
       const admin = em.create(User, {
@@ -122,7 +129,7 @@ async function seedAdmin(): Promise<void> {
         phone,
         email,
         passwordHash: await hashPassword(password),
-        role: 'admin',
+        role: "admin",
         isActive: true,
       });
 
@@ -161,13 +168,15 @@ async function seedAdmin(): Promise<void> {
       spacesCreated += 1;
     }
     if (spacesCreated > 0 || spacesUpdated > 0) await em.flush();
-    console.info(`${spacesCreated} sample space(s) created; ${spacesUpdated} legacy sample space(s) updated.`);
+    console.info(
+      `${spacesCreated} sample space(s) created; ${spacesUpdated} legacy sample space(s) updated.`,
+    );
   } finally {
     await orm.close(true);
   }
 }
 
 void seedAdmin().catch((error: unknown) => {
-  console.error('Could not seed the administrator:', error);
+  console.error("Could not seed the administrator:", error);
   process.exitCode = 1;
 });

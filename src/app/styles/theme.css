@@ -18,10 +18,10 @@
   --shadow-sm: 0 4px 16px rgb(8 7 8 / 6%);
   --shadow-md: 0 8px 24px rgb(8 7 8 / 10%);
   --shadow-lg: 0 16px 48px rgb(8 7 8 / 12%);
-  --font-brand: 'Mithella', sans-serif;
+  --font-brand: "Mithella", sans-serif;
 }
 
-:root[data-theme='dark'] {
+:root[data-theme="dark"] {
   color-scheme: dark;
   --color-background: #202833;
   --color-foreground: #edf2f8;
@@ -45,15 +45,19 @@
 }
 
 @font-face {
-  font-family: 'Mithella';
-  src: url('/fonts/Mithella-Regular.otf') format('opentype');
+  font-family: "Mithella";
+  src: url("/fonts/Mithella-Regular.otf") format("opentype");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Mithella'; src: url('/fonts/Mithella-Bold.otf') format('opentype'); font-style: normal; font-weight: 700; font-display: swap;
+  font-family: "Mithella";
+  src: url("/fonts/Mithella-Bold.otf") format("opentype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
 }
 
 html:focus-within {
@@ -67,15 +71,20 @@ body {
   font-weight: 400;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-brand);
   font-weight: 700;
 }
 
 button:not(:disabled),
 a[href],
-input[type='checkbox'],
-input[type='radio'],
+input[type="checkbox"],
+input[type="radio"],
 select:not(:disabled) {
   cursor: pointer;
 }

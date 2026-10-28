@@ -234,11 +234,12 @@
   min-width: 0;
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 7fr);
-  align-items: start;
+  align-items: stretch;
   gap: clamp(1rem, 2vw, 2rem);
 }
 
 .space-management__form {
+  box-sizing: border-box;
   position: sticky;
   top: 1rem;
   display: grid;
@@ -327,7 +328,9 @@
 }
 
 .space-management__list-scroll {
-  height: clamp(24rem, calc(100vh - 17rem), 42rem);
+  height: 100%;
+  min-height: clamp(24rem, calc(100vh - 17rem), 42rem);
+  max-height: 42rem;
   overflow-y: auto;
   display: grid;
   gap: 1rem;
@@ -378,7 +381,9 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 0.9rem;
-  transition: border-color 160ms ease, box-shadow 160ms ease;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .space-management__item.is-editing {
@@ -455,6 +460,12 @@
 
   .space-management__columns {
     grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .space-management__list-scroll {
+    height: auto;
+    min-height: 24rem;
   }
 
   .space-management__form {
@@ -502,6 +513,7 @@
 
   .space-management__list-scroll {
     height: auto;
+    min-height: 0;
     max-height: 32rem;
   }
 }

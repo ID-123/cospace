@@ -1,31 +1,31 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useLocale } from '@/components/shared/LocaleProvider';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useLocale } from "@/components/shared/LocaleProvider";
 
 export function LogoutButton() {
   const router = useRouter();
   const { t } = useLocale();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleLogout() {
     setIsSubmitting(true);
-    setErrorMessage('');
+    setErrorMessage("");
 
     try {
-      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      const response = await fetch("/api/auth/logout", { method: "POST" });
 
       if (!response.ok) {
-        setErrorMessage(t('logoutError'));
+        setErrorMessage(t("logoutError"));
         return;
       }
 
-      router.replace('/');
+      router.replace("/");
       router.refresh();
     } catch {
-      setErrorMessage(t('connectionError'));
+      setErrorMessage(t("connectionError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -39,7 +39,7 @@ export function LogoutButton() {
         onClick={handleLogout}
         disabled={isSubmitting}
       >
-        {isSubmitting ? t('loggingOut') : t('logout')}
+        {isSubmitting ? t("loggingOut") : t("logout")}
       </button>
       {errorMessage ? (
         <span className="session-menu__error" role="alert">

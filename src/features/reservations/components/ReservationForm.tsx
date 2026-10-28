@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useState, type ChangeEvent, type SubmitEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { useLocale } from '@/components/shared/LocaleProvider';
-import { getReservationScheduleError } from '@/features/reservations/reservations';
+import { useEffect, useState, type ChangeEvent, type SubmitEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useLocale } from "@/components/shared/LocaleProvider";
+import { getReservationScheduleError } from "@/features/reservations/reservations";
 import {
   clearPendingReservation,
   readPendingReservation,
   savePendingReservation,
   submitReservation,
   type PendingReservation,
-} from '@/features/reservations/pending-reservation';
+} from "@/features/reservations/pending-reservation";
 
 type ReservationFormProps = {
   spaceId: string;
@@ -25,7 +25,7 @@ type ApiError = {
 };
 
 function addDays(date: string, days: number): string {
-  const [year, month, day] = date.split('-').map(Number);
+  const [year, month, day] = date.split("-").map(Number);
   const result = new Date(Date.UTC(year, month - 1, day + days));
   return result.toISOString().slice(0, 10);
 }
@@ -33,7 +33,7 @@ function addDays(date: string, days: number): string {
 export function ReservationForm({ spaceId, today }: ReservationFormProps) {
   const router = useRouter();
   const { t } = useLocale();
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [durationHours, setDurationHours] = useState(1);
 
@@ -52,31 +52,31 @@ export function ReservationForm({ spaceId, today }: ReservationFormProps) {
           return;
         }
         if (response.ok) {
-          router.push('/dashboard');
+          router.push("/dashboard");
           router.refresh();
           return;
         }
 
         const result = (await response.json()) as ApiError;
-        setMessage(result.error?.message ?? t('createReservationError'));
+        setMessage(result.error?.message ?? t("createReservationError"));
       })
       .catch(() => {
         savePendingReservation(pendingReservation);
-        setMessage(t('connectionError'));
+        setMessage(t("connectionError"));
       })
       .finally(() => setIsSubmitting(false));
   }, [router, spaceId, t]);
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    setMessage('');
+    setMessage("");
 
     const formData = new FormData(event.currentTarget);
-    const date = String(formData.get('date'));
-    const startHour = String(formData.get('startHour')).padStart(2, '0');
+    const date = String(formData.get("date"));
+    const startHour = String(formData.get("startHour")).padStart(2, "0");
     const startsAtDate = new Date(`${date}T${startHour}:00:00-05:00`);
     if (Number.isNaN(startsAtDate.getTime())) {
-      setMessage(t('invalidDate'));
+      setMessage(t("invalidDate"));
       return;
     }
 
@@ -85,7 +85,7 @@ export function ReservationForm({ spaceId, today }: ReservationFormProps) {
       durationHours,
     );
     if (scheduleError) {
-      setMessage(t('scheduleRuleError'));
+      setMessage(t("scheduleRuleError"));
       return;
     }
     const reservation: PendingReservation = {
@@ -100,35 +100,37 @@ export function ReservationForm({ spaceId, today }: ReservationFormProps) {
 
       if (response.status === 401) {
         savePendingReservation(reservation);
-        router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+        router.push(
+          `/login?next=${encodeURIComponent(window.location.pathname)}`,
+        );
         return;
       }
 
       if (!response.ok) {
         const result = (await response.json()) as ApiError;
         const apiErrorTranslations: Record<string, string> = {
-          INVALID_SCHEDULE: t('scheduleRuleError'),
-          SPACE_UNAVAILABLE: t('spaceUnavailable'),
-          USER_SCHEDULE_CONFLICT: t('userScheduleConflict'),
-          RESERVATION_LIMIT: t('reservationLimit'),
-          SPACE_NOT_FOUND: t('spaceNotFound'),
-          INVALID_INPUT: t('invalidInput'),
-          INTERNAL_ERROR: t('createReservationError'),
+          INVALID_SCHEDULE: t("scheduleRuleError"),
+          SPACE_UNAVAILABLE: t("spaceUnavailable"),
+          USER_SCHEDULE_CONFLICT: t("userScheduleConflict"),
+          RESERVATION_LIMIT: t("reservationLimit"),
+          SPACE_NOT_FOUND: t("spaceNotFound"),
+          INVALID_INPUT: t("invalidInput"),
+          INTERNAL_ERROR: t("createReservationError"),
         };
         setMessage(
           (result.error?.code
             ? apiErrorTranslations[result.error.code]
             : undefined) ??
             result.error?.message ??
-            t('createReservationError'),
+            t("createReservationError"),
         );
         return;
       }
 
-      router.push('/dashboard');
+      router.push("/dashboard");
       router.refresh();
     } catch {
-      setMessage(t('connectionError'));
+      setMessage(t("connectionError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -144,7 +146,7 @@ export function ReservationForm({ spaceId, today }: ReservationFormProps) {
   return (
     <form className="reservation-form" onSubmit={handleSubmit}>
       <label>
-        {t('date')}
+        {t("date")}
         <input
           name="date"
           type="date"
@@ -154,17 +156,20 @@ export function ReservationForm({ spaceId, today }: ReservationFormProps) {
         />
       </label>
       <label>
-        {t('startTimeBogota')}
+        {t("startTimeBogota")}
         <select name="startHour" defaultValue="09" required>
-          {Array.from({ length: latestStartHour - 6 }, (_, index) => index + 7).map((hour) => (
-            <option key={hour} value={String(hour).padStart(2, '0')}>
-              {String(hour).padStart(2, '0')}:00
+          {Array.from(
+            { length: latestStartHour - 6 },
+            (_, index) => index + 7,
+          ).map((hour) => (
+            <option key={hour} value={String(hour).padStart(2, "0")}>
+              {String(hour).padStart(2, "0")}:00
             </option>
           ))}
         </select>
       </label>
       <label>
-        {t('duration')}
+        {t("duration")}
         <select
           name="durationHours"
           value={durationHours}
@@ -173,7 +178,7 @@ export function ReservationForm({ spaceId, today }: ReservationFormProps) {
         >
           {[1, 2, 3, 4].map((hours) => (
             <option key={hours} value={hours}>
-              {hours} {hours === 1 ? t('hour') : t('hours')}
+              {hours} {hours === 1 ? t("hour") : t("hours")}
             </option>
           ))}
         </select>
@@ -188,7 +193,7 @@ export function ReservationForm({ spaceId, today }: ReservationFormProps) {
         type="submit"
         disabled={isSubmitting}
       >
-        {isSubmitting ? t('booking') : t('reserve')}
+        {isSubmitting ? t("booking") : t("reserve")}
       </button>
     </form>
   );

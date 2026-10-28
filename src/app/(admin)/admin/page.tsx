@@ -1,9 +1,9 @@
-import type { Metadata } from 'next';
-import { SpaceManagement } from '@/features/admin/components/SpaceManagement';
-import { AdminHeading } from '@/features/admin/components/AdminHeading';
+import type { Metadata } from "next";
+import { SpaceManagement } from "@/features/admin/components/SpaceManagement";
+import { AdminHeading } from "@/features/admin/components/AdminHeading";
 
 export const metadata: Metadata = {
-  title: 'Administración | CoSpace',
+  title: "Administración | CoSpace",
 };
 
 export default async function AdminPage() {

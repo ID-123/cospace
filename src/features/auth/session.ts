@@ -1,11 +1,11 @@
-import { createHash, randomBytes } from 'node:crypto';
-import { jwtVerify, SignJWT } from 'jose';
-import type { EntityManager } from '@mikro-orm/core';
-import type { NextResponse } from 'next/server';
-import { connection } from 'next/server';
-import { cookies } from 'next/headers';
-import type { RefreshToken, User } from '@/database/entities/user';
-import { getEntityClass } from '@/database/orm';
+import { createHash, randomBytes } from "node:crypto";
+import { jwtVerify, SignJWT } from "jose";
+import type { EntityManager } from "@mikro-orm/core";
+import type { NextResponse } from "next/server";
+import { connection } from "next/server";
+import { cookies } from "next/headers";
+import type { RefreshToken, User } from "@/database/entities/user";
+import { getEntityClass } from "@/database/orm";
 import {
   ACCESS_COOKIE,
   ACCESS_TOKEN_SECONDS,
@@ -13,10 +13,10 @@ import {
   REFRESH_COOKIE,
   REFRESH_TOKEN_SECONDS,
   verifyAccessToken,
-} from '@/features/auth/token';
-import type { SessionUser } from '@/features/auth/token';
+} from "@/features/auth/token";
+import type { SessionUser } from "@/features/auth/token";
 
-export type { SessionUser } from '@/features/auth/token';
+export type { SessionUser } from "@/features/auth/token";
 
 export async function getCurrentSession(): Promise<SessionUser | null> {
   await connection();
@@ -26,21 +26,23 @@ export async function getCurrentSession(): Promise<SessionUser | null> {
 }
 
 export function hashRefreshToken(token: string): string {
-  return createHash('sha256').update(token).digest('hex');
+  return createHash("sha256").update(token).digest("hex");
 }
 
 function getRefreshSecret(): Uint8Array {
   const secret = process.env.JWT_REFRESH_SECRET;
   if (!secret || secret.length < 32) {
-    throw new Error('JWT_REFRESH_SECRET debe contener al menos 32 caracteres');
+    throw new Error("JWT_REFRESH_SECRET debe contener al menos 32 caracteres");
   }
   return new TextEncoder().encode(secret);
 }
 
-export async function verifyRefreshToken(token: string): Promise<string | null> {
+export async function verifyRefreshToken(
+  token: string,
+): Promise<string | null> {
   try {
     const { payload } = await jwtVerify(token, getRefreshSecret(), {
-      algorithms: ['HS256'],
+      algorithms: ["HS256"],
     });
     return payload.sub ?? null;
   } catch {
@@ -60,13 +62,13 @@ export async function createSession(
     role: user.role,
   });
   const refreshToken = await new SignJWT({})
-    .setProtectedHeader({ alg: 'HS256' })
+    .setProtectedHeader({ alg: "HS256" })
     .setSubject(user.id)
-    .setJti(randomBytes(16).toString('hex'))
+    .setJti(randomBytes(16).toString("hex"))
     .setIssuedAt()
     .setExpirationTime(`${REFRESH_TOKEN_SECONDS}s`)
     .sign(getRefreshSecret());
-  const refreshTokenEntity = getEntityClass<RefreshToken>(em, 'RefreshToken');
+  const refreshTokenEntity = getEntityClass<RefreshToken>(em, "RefreshToken");
   const refreshTokenRecord = em.create(refreshTokenEntity, {
     tokenHash: hashRefreshToken(refreshToken),
     user,
@@ -92,12 +94,15 @@ export function setSessionCookies(
 
 const sessionCookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
-  path: '/',
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
 };
 
-export function setAccessCookie(response: NextResponse, accessToken: string): void {
+export function setAccessCookie(
+  response: NextResponse,
+  accessToken: string,
+): void {
   response.cookies.set(ACCESS_COOKIE, accessToken, {
     ...sessionCookieOptions,
     maxAge: ACCESS_TOKEN_SECONDS,

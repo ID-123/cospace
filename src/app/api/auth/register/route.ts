@@ -1,11 +1,11 @@
-import { UniqueConstraintViolationException } from '@mikro-orm/core';
-import { getEntityClass, getOrm } from '@/database/orm';
-import type { User } from '@/database/entities/user';
-import { hashPassword } from '@/features/auth/password';
-import { createSession, setSessionCookies } from '@/features/auth/session';
-import { registrationSchema } from '@/features/auth/validation';
-import { errorResponse } from '@/features/auth/http';
-import { NextResponse } from 'next/server';
+import { UniqueConstraintViolationException } from "@mikro-orm/core";
+import { getEntityClass, getOrm } from "@/database/orm";
+import type { User } from "@/database/entities/user";
+import { hashPassword } from "@/features/auth/password";
+import { createSession, setSessionCookies } from "@/features/auth/session";
+import { registrationSchema } from "@/features/auth/validation";
+import { errorResponse } from "@/features/auth/http";
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request): Promise<NextResponse> {
   let body: unknown;
@@ -13,7 +13,11 @@ export async function POST(request: Request): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return errorResponse(400, 'INVALID_INPUT', 'Revisa los datos del formulario.');
+    return errorResponse(
+      400,
+      "INVALID_INPUT",
+      "Revisa los datos del formulario.",
+    );
   }
 
   const validation = registrationSchema.safeParse(body);
@@ -21,8 +25,8 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (!validation.success) {
     return errorResponse(
       400,
-      'INVALID_INPUT',
-      validation.error.issues[0]?.message ?? 'Revisa los datos del formulario.',
+      "INVALID_INPUT",
+      validation.error.issues[0]?.message ?? "Revisa los datos del formulario.",
     );
   }
 
@@ -31,7 +35,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   try {
     const orm = await getOrm();
     const em = orm.em.fork();
-    const userEntity = getEntityClass<User>(em, 'User');
+    const userEntity = getEntityClass<User>(em, "User");
     const registration = await em.transactional(async (transaction) => {
       const existingUser = await transaction.findOne(userEntity, {
         email: credentials.email,
@@ -44,7 +48,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         phone: credentials.phone,
         email: credentials.email,
         passwordHash: await hashPassword(credentials.password),
-        role: 'user',
+        role: "user",
         isActive: true,
       });
       transaction.persist(user);
@@ -54,7 +58,11 @@ export async function POST(request: Request): Promise<NextResponse> {
     });
 
     if (!registration) {
-      return errorResponse(409, 'EMAIL_IN_USE', 'El correo ya está registrado.');
+      return errorResponse(
+        409,
+        "EMAIL_IN_USE",
+        "El correo ya está registrado.",
+      );
     }
 
     const response = NextResponse.json(
@@ -75,19 +83,23 @@ export async function POST(request: Request): Promise<NextResponse> {
     if (error instanceof UniqueConstraintViolationException) {
       try {
         const em = (await getOrm()).em.fork();
-        const userEntity = getEntityClass<User>(em, 'User');
+        const userEntity = getEntityClass<User>(em, "User");
         const existingUser = await em.findOne(userEntity, {
           email: credentials.email,
         });
         if (existingUser) {
-          return errorResponse(409, 'EMAIL_IN_USE', 'El correo ya está registrado.');
+          return errorResponse(
+            409,
+            "EMAIL_IN_USE",
+            "El correo ya está registrado.",
+          );
         }
       } catch (lookupError) {
-        console.error('Could not verify duplicate registration:', lookupError);
+        console.error("Could not verify duplicate registration:", lookupError);
       }
     }
 
-    console.error('Registration failed:', error);
-    return errorResponse(500, 'INTERNAL_ERROR', 'No se pudo crear la cuenta.');
+    console.error("Registration failed:", error);
+    return errorResponse(500, "INTERNAL_ERROR", "No se pudo crear la cuenta.");
   }
 }

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import { useLocale } from '@/components/shared/LocaleProvider';
-import { LocalizedPrice } from '@/components/shared/LocalizedPrice';
+import { useCallback, useEffect, useState } from "react";
+import { useLocale } from "@/components/shared/LocaleProvider";
+import { LocalizedPrice } from "@/components/shared/LocalizedPrice";
 
 type ReservationItem = {
   id: string;
@@ -14,7 +14,7 @@ type ReservationItem = {
   endsAt: string;
   durationHours: number;
   totalPrice: number;
-  status: 'confirmed' | 'cancelled';
+  status: "confirmed" | "cancelled";
   canCancel: boolean;
 };
 
@@ -32,41 +32,42 @@ type ReservationsLoadResult =
 export function ReservationList() {
   const { t, locale } = useLocale();
   const bogotaDateTime = new Intl.DateTimeFormat(
-    locale === 'en' ? 'en-US' : 'es-CO',
+    locale === "en" ? "en-US" : "es-CO",
     {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-      timeZone: 'America/Bogota',
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "America/Bogota",
     },
   );
   const [reservations, setReservations] = useState<ReservationItem[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchReservations = useCallback(async (): Promise<ReservationsLoadResult> => {
-    try {
-      const response = await fetch('/api/reservations');
-      if (!response.ok) {
-        const result = (await response.json()) as ApiError;
-        const code = result.error?.code;
+  const fetchReservations =
+    useCallback(async (): Promise<ReservationsLoadResult> => {
+      try {
+        const response = await fetch("/api/reservations");
+        if (!response.ok) {
+          const result = (await response.json()) as ApiError;
+          const code = result.error?.code;
+          return {
+            reservations: null,
+            error:
+              code === "UNAUTHENTICATED"
+                ? t("unauthenticated")
+                : code === "INTERNAL_ERROR"
+                  ? t("loadReservationsError")
+                  : (result.error?.message ?? t("loadReservationsError")),
+          };
+        }
         return {
-          reservations: null,
-          error:
-            code === 'UNAUTHENTICATED'
-            ? t('unauthenticated')
-            : code === 'INTERNAL_ERROR'
-              ? t('loadReservationsError')
-              : result.error?.message ?? t('loadReservationsError'),
+          reservations: (await response.json()) as ReservationItem[],
+          error: null,
         };
+      } catch {
+        return { reservations: null, error: t("connectionError") };
       }
-      return {
-        reservations: (await response.json()) as ReservationItem[],
-        error: null,
-      };
-    } catch {
-      return { reservations: null, error: t('connectionError') };
-    }
-  }, [t]);
+    }, [t]);
 
   const loadReservations = useCallback(async () => {
     const result = await fetchReservations();
@@ -90,58 +91,58 @@ export function ReservationList() {
   }, [fetchReservations]);
 
   async function cancelReservation(id: string) {
-    setErrorMessage('');
+    setErrorMessage("");
     try {
-      const response = await fetch(`/api/reservations/${id}`, { method: 'PATCH' });
+      const response = await fetch(`/api/reservations/${id}`, {
+        method: "PATCH",
+      });
       if (!response.ok) {
         const result = (await response.json()) as ApiError;
         const code = result.error?.code;
         const cancellationMessages: Record<string, string> = {
-          CANCELLATION_WINDOW_CLOSED: t('cancellationWindowClosed'),
-          NOT_CONFIRMED: t('reservationNotConfirmed'),
-          RESERVATION_NOT_FOUND: t('reservationNotFound'),
+          CANCELLATION_WINDOW_CLOSED: t("cancellationWindowClosed"),
+          NOT_CONFIRMED: t("reservationNotConfirmed"),
+          RESERVATION_NOT_FOUND: t("reservationNotFound"),
         };
         setErrorMessage(
           (code ? cancellationMessages[code] : undefined) ??
             result.error?.message ??
-            t('cancelReservationError'),
+            t("cancelReservationError"),
         );
         return;
       }
       await loadReservations();
     } catch {
-      setErrorMessage(t('connectionError'));
+      setErrorMessage(t("connectionError"));
     }
   }
 
-  if (isLoading) return <p>{t('loadingReservations')}</p>;
+  if (isLoading) return <p>{t("loadingReservations")}</p>;
 
   return (
-    <section className="reservation-list" aria-label={t('reservationsTitle')}>
+    <section className="reservation-list" aria-label={t("reservationsTitle")}>
       {errorMessage ? (
         <p className="auth-form__error" role="alert">
           {errorMessage}
         </p>
       ) : null}
       {reservations.length === 0 ? (
-        <p className="account-page__empty">
-          {t('noReservations')}
-        </p>
+        <p className="account-page__empty">{t("noReservations")}</p>
       ) : (
         reservations.map((reservation) => (
           <article className="reservation-card" key={reservation.id}>
             <div>
               <h2>{reservation.space.name}</h2>
               <p>
-                {bogotaDateTime.format(new Date(reservation.startsAt))} –{' '}
+                {bogotaDateTime.format(new Date(reservation.startsAt))} –{" "}
                 {bogotaDateTime.format(new Date(reservation.endsAt))}
               </p>
               <p>
-                {reservation.durationHours} h ·{' '}
-                <LocalizedPrice amount={reservation.totalPrice} /> ·{' '}
-                {reservation.status === 'confirmed'
-                  ? t('confirmed')
-                  : t('cancelled')}
+                {reservation.durationHours} h ·{" "}
+                <LocalizedPrice amount={reservation.totalPrice} /> ·{" "}
+                {reservation.status === "confirmed"
+                  ? t("confirmed")
+                  : t("cancelled")}
               </p>
             </div>
             {reservation.canCancel ? (
@@ -150,7 +151,7 @@ export function ReservationList() {
                 className="reservation-card__cancel"
                 onClick={() => void cancelReservation(reservation.id)}
               >
-                {t('cancelReservation')}
+                {t("cancelReservation")}
               </button>
             ) : null}
           </article>

@@ -1,7 +1,7 @@
-import { Suspense } from 'react';
-import { getCurrentSession } from '@/features/auth/session';
-import { HomeContent } from '@/features/home/components/HomeContent';
-import { getActiveSpaces } from '@/database/queries/spaces';
+import { Suspense } from "react";
+import { getCurrentSession } from "@/features/auth/session";
+import { HomeContent } from "@/features/home/components/HomeContent";
+import { getActiveSpaces } from "@/database/queries/spaces";
 
 const featuredSpaceLimit = 3;
 

@@ -18,7 +18,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-full flex flex-col">
-        <Suspense fallback={<LocaleProvider initialLocale="es">{children}</LocaleProvider>}>
+        <Suspense
+          fallback={
+            <LocaleProvider initialLocale="es">{children}</LocaleProvider>
+          }
+        >
           <RequestLocaleProvider>{children}</RequestLocaleProvider>
         </Suspense>
       </body>

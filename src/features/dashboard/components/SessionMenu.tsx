@@ -1,9 +1,13 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import type { SessionUser } from '@/features/auth/token';
-import { LogoutButton } from '@/features/auth/components/LogoutButton';
-import { LocaleSwitcher, ThemeSwitcher, useLocale } from '@/components/shared/LocaleProvider';
+import Link from "next/link";
+import type { SessionUser } from "@/features/auth/token";
+import { LogoutButton } from "@/features/auth/components/LogoutButton";
+import {
+  LocaleSwitcher,
+  ThemeSwitcher,
+  useLocale,
+} from "@/components/shared/LocaleProvider";
 
 type SessionMenuProps = {
   user: SessionUser | null;
@@ -18,10 +22,13 @@ export function SessionMenu({ user }: SessionMenuProps) {
         <LocaleSwitcher />
         <ThemeSwitcher />
         <Link className="navbar__action navbar__action--login" href="/login">
-          {t('login')}
+          {t("login")}
         </Link>
-        <Link className="navbar__action navbar__action--register" href="/register">
-          {t('register')}
+        <Link
+          className="navbar__action navbar__action--register"
+          href="/register"
+        >
+          {t("register")}
         </Link>
       </div>
     );
@@ -36,9 +43,9 @@ export function SessionMenu({ user }: SessionMenuProps) {
       <Link
         className="navbar__user"
         href="/dashboard/profile"
-        title={t('editProfile')}
+        title={t("editProfile")}
       >
-        {t('greeting')}, {displayName}!
+        {t("greeting")}, {displayName}!
       </Link>
       <LogoutButton />
     </div>
