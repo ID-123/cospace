@@ -10,7 +10,9 @@
     "test": "tsx --test tests/*.test.ts",
     "db:migrate": "mikro-orm migration:up --config ./src/mikro-orm.config.ts",
     "db:seed": "tsx src/database/seed-admin.ts",
-    "db:seed:admin": "tsx src/database/seed-admin.ts"
+    "db:seed:admin": "tsx src/database/seed-admin.ts",
+    "format-all": "prettier . --write",
+    "check-format": "prettier . --check"
   },
   "dependencies": {
     "@mikro-orm/core": "7.2.5",
