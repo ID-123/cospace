@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { passwordChangeSchema, profileUpdateSchema } from './validation';
+import { passwordChangeSchema, profileUpdateSchema } from '@/features/auth/validation';
 
 describe('account settings validation', () => {
   it('normalizes the profile email and accepts valid contact details', () => {

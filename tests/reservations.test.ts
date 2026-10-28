@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { getBogotaDate, getReservationScheduleError } from './reservations';
+import { getBogotaDate, getReservationScheduleError } from '@/features/reservations/reservations';
 
 const now = new Date('2026-10-28T15:00:00.000Z');
 

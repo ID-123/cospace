@@ -116,7 +116,7 @@ contenedor en tiempo de ejecución; no se copian a la imagen.
 | `pnpm build`         | Genera el build de producción standalone.                           |
 | `pnpm start`         | Inicia el servidor de producción fuera de Docker.                   |
 | `pnpm lint`          | Ejecuta ESLint.                                                      |
-| `pnpm test`          | Ejecuta las pruebas de reglas de reservas y validación de espacios. |
+| `pnpm test`          | Ejecuta las pruebas ubicadas en la carpeta `tests/`. |
 | `pnpm db:migrate`    | Aplica las migraciones pendientes.                                   |
 | `pnpm db:seed`       | Crea el administrador y los espacios de ejemplo.                     |
 | `pnpm db:seed:admin` | Alias histórico del seed completo.                                  |
