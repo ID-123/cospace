@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAuthenticatedUser } from '@/features/auth/current-user';
-import { errorResponse } from '@/features/auth/http';
+import { errorResponse, readValidatedBody, requireAdmin } from '@/features/auth/http';
 import { spaceInputSchema } from '@/features/spaces/validation';
 import { getEntityClass, getOrm } from '@/database/orm';
 import type { Space } from '@/database/entities/space';
@@ -24,39 +23,21 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
-  let user: Awaited<ReturnType<typeof getAuthenticatedUser>>;
-  try {
-    user = await getAuthenticatedUser();
-  } catch (error) {
-    console.error('Could not authenticate space creation:', error);
-    return errorResponse(500, 'INTERNAL_ERROR', 'No se pudo verificar la sesión.');
-  }
-  if (!user) return errorResponse(401, 'UNAUTHENTICATED', 'Inicia sesión.');
-  if (user.role !== 'admin') {
-    return errorResponse(403, 'FORBIDDEN', 'Solo un administrador puede crear espacios.');
-  }
+  const access = await requireAdmin('Solo un administrador puede crear espacios.');
+  if ('response' in access) return access.response;
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return errorResponse(400, 'INVALID_INPUT', 'Revisa los datos del espacio.');
-  }
-
-  const validation = spaceInputSchema.safeParse(body);
-  if (!validation.success) {
-    return errorResponse(
-      400,
-      'INVALID_INPUT',
-      validation.error.issues[0]?.message ?? 'Revisa los datos del espacio.',
-    );
-  }
+  const input = await readValidatedBody(
+    request,
+    spaceInputSchema,
+    'Revisa los datos del espacio.',
+  );
+  if ('response' in input) return input.response;
 
   try {
     const orm = await getOrm();
     const em = orm.em.fork();
     const spaceEntity = getEntityClass<Space>(em, 'Space');
-    const space = em.create(spaceEntity, { ...validation.data, isActive: true });
+    const space = em.create(spaceEntity, { ...input.data, isActive: true });
     em.persist(space);
     await em.flush();
 

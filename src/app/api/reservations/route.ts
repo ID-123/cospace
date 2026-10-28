@@ -1,7 +1,6 @@
 import { LockMode } from '@mikro-orm/core';
 import { NextResponse } from 'next/server';
-import { errorResponse } from '@/features/auth/http';
-import { getAuthenticatedUser } from '@/features/auth/current-user';
+import { errorResponse, readValidatedBody, requireUser } from '@/features/auth/http';
 import { getReservationScheduleError, reservationInputSchema } from '@/features/reservations/reservations';
 import type { Reservation } from '@/database/entities/reservation';
 import type { Space } from '@/database/entities/space';
@@ -13,10 +12,9 @@ const bookingWindowMilliseconds = 2 * 60 * 60 * 1000;
 
 export async function GET(): Promise<NextResponse> {
   try {
-    const user = await getAuthenticatedUser();
-    if (!user) {
-      return errorResponse(401, 'UNAUTHENTICATED', 'Inicia sesión para ver tus reservas.');
-    }
+    const access = await requireUser('consultar la sesión del usuario');
+    if ('response' in access) return access.response;
+    const { user } = access;
 
     const orm = await getOrm();
     const em = orm.em.fork();
@@ -52,38 +50,22 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
-  let user: User | null;
-  try {
-    user = await getAuthenticatedUser();
-  } catch (error) {
-    console.error('Could not authenticate reservation request:', error);
-    return errorResponse(500, 'INTERNAL_ERROR', 'No se pudo verificar la sesión.');
-  }
-  if (!user) {
-    return errorResponse(401, 'UNAUTHENTICATED', 'Inicia sesión para crear una reserva.');
-  }
+  const access = await requireUser('autenticar la solicitud de reserva');
+  if ('response' in access) return access.response;
+  const { user } = access;
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return errorResponse(400, 'INVALID_INPUT', 'Revisa los datos de la reserva.');
-  }
+  const input = await readValidatedBody(
+    request,
+    reservationInputSchema,
+    'Revisa los datos de la reserva.',
+  );
+  if ('response' in input) return input.response;
 
-  const validation = reservationInputSchema.safeParse(body);
-  if (!validation.success) {
-    return errorResponse(
-      400,
-      'INVALID_INPUT',
-      validation.error.issues[0]?.message ?? 'Revisa los datos de la reserva.',
-    );
-  }
-
-  const startsAt = new Date(validation.data.startsAt);
+  const startsAt = new Date(input.data.startsAt);
   const now = new Date();
   const scheduleError = getReservationScheduleError(
     startsAt,
-    validation.data.durationHours,
+    input.data.durationHours,
     now,
   );
   if (scheduleError) {
@@ -91,7 +73,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   const endsAt = new Date(
-    startsAt.getTime() + validation.data.durationHours * 60 * 60 * 1000,
+    startsAt.getTime() + input.data.durationHours * 60 * 60 * 1000,
   );
 
   try {
@@ -111,7 +93,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
         const space = await transaction.findOne(
           spaceEntity,
-          { id: validation.data.spaceId, isActive: true },
+          { id: input.data.spaceId, isActive: true },
           { lockMode: LockMode.PESSIMISTIC_WRITE },
         );
         if (!space) return { error: 'SPACE_NOT_FOUND' as const };
@@ -152,8 +134,8 @@ export async function POST(request: Request): Promise<NextResponse> {
           space,
           startsAt,
           endsAt,
-          durationHours: validation.data.durationHours,
-          totalPrice: space.pricePerHour * validation.data.durationHours,
+          durationHours: input.data.durationHours,
+          totalPrice: space.pricePerHour * input.data.durationHours,
           status: 'confirmed',
         });
         transaction.persist(reservation);

@@ -1,9 +1,16 @@
 'use client';
 
-import { useState, type ChangeEvent, type SubmitEvent } from 'react';
+import { useEffect, useState, type ChangeEvent, type SubmitEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from '@/components/shared/LocaleProvider';
 import { getReservationScheduleError } from '@/features/reservations/reservations';
+import {
+  clearPendingReservation,
+  readPendingReservation,
+  savePendingReservation,
+  submitReservation,
+  type PendingReservation,
+} from '@/features/reservations/pending-reservation';
 
 type ReservationFormProps = {
   spaceId: string;
@@ -29,6 +36,37 @@ export function ReservationForm({ spaceId, today }: ReservationFormProps) {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [durationHours, setDurationHours] = useState(1);
+
+  useEffect(() => {
+    const pendingReservation = readPendingReservation();
+    if (!pendingReservation || pendingReservation.spaceId !== spaceId) return;
+
+    clearPendingReservation();
+    Promise.resolve().then(() => setIsSubmitting(true));
+    submitReservation(pendingReservation)
+      .then(async (response) => {
+        if (response.status === 401) {
+          savePendingReservation(pendingReservation);
+          const next = window.location.pathname;
+          router.replace(`/login?next=${encodeURIComponent(next)}`);
+          return;
+        }
+        if (response.ok) {
+          router.push('/dashboard');
+          router.refresh();
+          return;
+        }
+
+        const result = (await response.json()) as ApiError;
+        setMessage(result.error?.message ?? t('createReservationError'));
+      })
+      .catch(() => {
+        savePendingReservation(pendingReservation);
+        setMessage(t('connectionError'));
+      })
+      .finally(() => setIsSubmitting(false));
+  }, [router, spaceId, t]);
+
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage('');
@@ -50,18 +88,19 @@ export function ReservationForm({ spaceId, today }: ReservationFormProps) {
       setMessage(t('scheduleRuleError'));
       return;
     }
-    const startsAt = startsAtDate.toISOString();
+    const reservation: PendingReservation = {
+      spaceId,
+      startsAt: startsAtDate.toISOString(),
+      durationHours,
+    };
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/reservations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spaceId, startsAt, durationHours }),
-      });
+      const response = await submitReservation(reservation);
 
       if (response.status === 401) {
-        router.push('/login');
+        savePendingReservation(reservation);
+        router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
         return;
       }
 

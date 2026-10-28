@@ -2,6 +2,11 @@
 
 import { useState } from 'react';
 import { useLocale } from '@/components/shared/LocaleProvider';
+import {
+  clearPendingReservation,
+  readPendingReservation,
+  submitReservation,
+} from '@/features/reservations/pending-reservation';
 
 type AuthResponse = {
   error?: {
@@ -47,12 +52,27 @@ export function useAuthSubmission(mode: AuthMode) {
         return;
       }
 
-      const destination =
-        mode === 'login'
-          ? '/'
-          : result.user?.role === 'admin'
-            ? '/admin'
-            : '/dashboard';
+      let destination = '/';
+      if (mode === 'register') {
+        destination = result.user?.role === 'admin' ? '/admin' : '/dashboard';
+      } else {
+        const next = new URLSearchParams(window.location.search).get('next');
+        destination = next?.startsWith('/') ? next : '/';
+      }
+
+      const pendingReservation =
+        mode === 'login' ? readPendingReservation() : null;
+      if (pendingReservation) {
+        const reservationResponse = await submitReservation(pendingReservation);
+        if (reservationResponse.ok) {
+          clearPendingReservation();
+          window.location.replace('/dashboard');
+          return;
+        }
+
+        destination = `/spaces/${pendingReservation.spaceId}`;
+      }
+
       window.location.replace(destination);
     } catch {
       setErrorMessage(t('connectionError'));

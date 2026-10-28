@@ -1,7 +1,6 @@
 import { LockMode } from '@mikro-orm/core';
 import { NextResponse } from 'next/server';
-import { errorResponse } from '@/features/auth/http';
-import { getAuthenticatedUser } from '@/features/auth/current-user';
+import { errorResponse, requireUser } from '@/features/auth/http';
 import type { Reservation } from '@/database/entities/reservation';
 import { getEntityClass, getOrm } from '@/database/orm';
 import { z } from 'zod';
@@ -16,16 +15,9 @@ export async function PATCH(
   _request: Request,
   { params }: ReservationRouteContext,
 ): Promise<NextResponse> {
-  let user: Awaited<ReturnType<typeof getAuthenticatedUser>>;
-  try {
-    user = await getAuthenticatedUser();
-  } catch (error) {
-    console.error('Could not authenticate reservation cancellation:', error);
-    return errorResponse(500, 'INTERNAL_ERROR', 'No se pudo verificar la sesión.');
-  }
-  if (!user) {
-    return errorResponse(401, 'UNAUTHENTICATED', 'Inicia sesión para cancelar una reserva.');
-  }
+  const access = await requireUser('autenticar la cancelación de reserva');
+  if ('response' in access) return access.response;
+  const { user } = access;
 
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) {

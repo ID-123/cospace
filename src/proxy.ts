@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ACCESS_COOKIE, REFRESH_COOKIE, verifyAccessToken } from '@/features/auth/token';
 
+function matchesRoute(pathname: string, route: string): boolean {
+  return pathname === route || pathname.startsWith(`${route}/`);
+}
+
 function isProtectedRoute(pathname: string): boolean {
-  return pathname === '/dashboard' || pathname.startsWith('/dashboard/') ||
-    pathname === '/admin' || pathname.startsWith('/admin/');
+  return ['/dashboard', '/admin'].some((route) => matchesRoute(pathname, route));
 }
 
 function isAdminRoute(pathname: string): boolean {
-  return pathname === '/admin' || pathname.startsWith('/admin/');
+  return matchesRoute(pathname, '/admin');
 }
 
 function isAuthRoute(pathname: string): boolean {

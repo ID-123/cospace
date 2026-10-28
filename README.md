@@ -21,17 +21,19 @@ Copia `.env.example` como `.env` y completa estas variables:
 | --- | --- |
 | `DATABASE_URL` | Cadena de conexión PostgreSQL del proyecto. En Supabase se obtiene desde **Project Settings → Database → Connection string**; usa el formato URI y la opción adecuada para tu entorno. |
 | `JWT_ACCESS_SECRET` | Secreto de firma del access token; debe tener al menos 32 caracteres. Genera uno con `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`. |
+| `JWT_REFRESH_SECRET` | Secreto independiente para firmar los refresh tokens; debe tener al menos 32 caracteres. Genera otro valor aleatorio con el mismo comando. |
+| `ACCESS_TOKEN_EXPIRES_IN` | Duración del access token, por ejemplo `15m`. También acepta segundos, horas o días: `s`, `m`, `h`, `d`. |
+| `REFRESH_TOKEN_EXPIRES_IN` | Duración del refresh token, por ejemplo `7d`. |
 | `ADMIN_EMAIL` | Correo para la cuenta administradora creada por el seed. |
 | `ADMIN_PASSWORD` | Contraseña inicial del administrador: mínimo 8 caracteres y máximo 72 bytes UTF-8. |
 | `ADMIN_FIRST_NAME` | Nombre del administrador (opcional; valor predeterminado: `Administrador`). |
 | `ADMIN_LAST_NAME` | Apellido del administrador (opcional; valor predeterminado: `CoSpace`). |
 | `ADMIN_PHONE` | Teléfono del administrador (opcional; valor predeterminado: `0000000000`). |
 
-El refresh token es un valor aleatorio opaco: solo se guarda su hash SHA-256 en
-la base de datos. Por eso no se necesita un secreto JWT separado para el refresh
-token. Los tokens se transportan en cookies `httpOnly`, `sameSite=lax` y con
-`secure` habilitado en producción; el access token dura 15 minutos y el refresh
-token 7 días.
+El refresh token es un JWT firmado y de uso revocable: solo se guarda su hash
+SHA-256 en la base de datos junto con su fecha de vencimiento. Los tokens se
+transportan en cookies `httpOnly`, `sameSite=lax` y con `secure` habilitado en
+producción; sus duraciones se controlan mediante las variables indicadas.
 
 ## Ejecución en desarrollo
 

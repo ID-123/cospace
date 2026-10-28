@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
+import { jwtVerify, SignJWT } from 'jose';
 import type { EntityManager } from '@mikro-orm/core';
 import type { NextResponse } from 'next/server';
 import { connection } from 'next/server';
@@ -10,12 +11,12 @@ import {
   ACCESS_TOKEN_SECONDS,
   createAccessToken,
   REFRESH_COOKIE,
+  REFRESH_TOKEN_SECONDS,
   verifyAccessToken,
 } from '@/features/auth/token';
 import type { SessionUser } from '@/features/auth/token';
 
 export type { SessionUser } from '@/features/auth/token';
-export const REFRESH_TOKEN_SECONDS = 7 * 24 * 60 * 60;
 
 export async function getCurrentSession(): Promise<SessionUser | null> {
   await connection();
@@ -26,6 +27,25 @@ export async function getCurrentSession(): Promise<SessionUser | null> {
 
 export function hashRefreshToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
+}
+
+function getRefreshSecret(): Uint8Array {
+  const secret = process.env.JWT_REFRESH_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error('JWT_REFRESH_SECRET debe contener al menos 32 caracteres');
+  }
+  return new TextEncoder().encode(secret);
+}
+
+export async function verifyRefreshToken(token: string): Promise<string | null> {
+  try {
+    const { payload } = await jwtVerify(token, getRefreshSecret(), {
+      algorithms: ['HS256'],
+    });
+    return payload.sub ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function createSession(
@@ -39,7 +59,13 @@ export async function createSession(
     email: user.email,
     role: user.role,
   });
-  const refreshToken = randomBytes(32).toString('base64url');
+  const refreshToken = await new SignJWT({})
+    .setProtectedHeader({ alg: 'HS256' })
+    .setSubject(user.id)
+    .setJti(randomBytes(16).toString('hex'))
+    .setIssuedAt()
+    .setExpirationTime(`${REFRESH_TOKEN_SECONDS}s`)
+    .sign(getRefreshSecret());
   const refreshTokenEntity = getEntityClass<RefreshToken>(em, 'RefreshToken');
   const refreshTokenRecord = em.create(refreshTokenEntity, {
     tokenHash: hashRefreshToken(refreshToken),

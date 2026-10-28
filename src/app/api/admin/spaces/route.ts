@@ -1,27 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { errorResponse } from '@/features/auth/http';
-import { ACCESS_COOKIE, verifyAccessToken } from '@/features/auth/token';
+import { connection, NextResponse } from 'next/server';
+import { errorResponse, requireAdmin } from '@/features/auth/http';
 import type { Space } from '@/database/entities/space';
-import type { User } from '@/database/entities/user';
 import { getEntityClass, getOrm } from '@/database/orm';
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const token = request.cookies.get(ACCESS_COOKIE)?.value;
-  const session = token ? await verifyAccessToken(token) : null;
-  if (!session) return errorResponse(401, 'UNAUTHENTICATED', 'Inicia sesión.');
+export async function GET(): Promise<NextResponse> {
+  await connection();
+  const access = await requireAdmin('Solo un administrador puede gestionar espacios.');
+  if ('response' in access) return access.response;
 
   try {
     const orm = await getOrm();
     const em = orm.em.fork();
-    const userEntity = getEntityClass<User>(em, 'User');
-    const user = await em.findOne(userEntity, {
-      id: session.id,
-      isActive: true,
-    });
-    if (!user) return errorResponse(401, 'UNAUTHENTICATED', 'Inicia sesión.');
-    if (user.role !== 'admin') {
-      return errorResponse(403, 'FORBIDDEN', 'Solo un administrador puede gestionar espacios.');
-    }
 
     const spaceEntity = getEntityClass<Space>(em, 'Space');
     const spaces = await em.find(spaceEntity, {}, { orderBy: { name: 'ASC' } });

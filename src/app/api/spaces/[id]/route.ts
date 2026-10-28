@@ -1,8 +1,7 @@
 import { LockMode } from '@mikro-orm/core';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { errorResponse } from '@/features/auth/http';
-import { getAuthenticatedUser } from '@/features/auth/current-user';
+import { errorResponse, readValidatedBody, requireAdmin } from '@/features/auth/http';
 import { spaceUpdateSchema } from '@/features/spaces/validation';
 import type { Reservation } from '@/database/entities/reservation';
 import type { Space } from '@/database/entities/space';
@@ -16,39 +15,20 @@ export async function PATCH(
   request: Request,
   { params }: SpaceRouteContext,
 ): Promise<NextResponse> {
-  let user: Awaited<ReturnType<typeof getAuthenticatedUser>>;
-  try {
-    user = await getAuthenticatedUser();
-  } catch (error) {
-    console.error('Could not authenticate space update:', error);
-    return errorResponse(500, 'INTERNAL_ERROR', 'No se pudo verificar la sesión.');
-  }
-  if (!user) {
-    return errorResponse(401, 'UNAUTHENTICATED', 'Inicia sesión.');
-  }
-  if (user.role !== 'admin') {
-    return errorResponse(403, 'FORBIDDEN', 'Solo un administrador puede actualizar espacios.');
-  }
+  const access = await requireAdmin('Solo un administrador puede actualizar espacios.');
+  if ('response' in access) return access.response;
 
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) {
     return errorResponse(404, 'SPACE_NOT_FOUND', 'No se encontró el espacio.');
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return errorResponse(400, 'INVALID_INPUT', 'Revisa los datos del espacio.');
-  }
-  const validation = spaceUpdateSchema.safeParse(body);
-  if (!validation.success) {
-    return errorResponse(
-      400,
-      'INVALID_INPUT',
-      validation.error.issues[0]?.message ?? 'Revisa los datos del espacio.',
-    );
-  }
+  const input = await readValidatedBody(
+    request,
+    spaceUpdateSchema,
+    'Revisa los datos del espacio.',
+  );
+  if ('response' in input) return input.response;
 
   try {
     const orm = await getOrm();
@@ -64,7 +44,7 @@ export async function PATCH(
         );
         if (!space) return { error: 'SPACE_NOT_FOUND' as const };
 
-        if (validation.data.isActive === false) {
+        if (input.data.isActive === false) {
           const futureReservation = await transaction.findOne(reservationEntity, {
             space,
             status: 'confirmed',
@@ -73,7 +53,7 @@ export async function PATCH(
           if (futureReservation) return { error: 'SPACE_HAS_FUTURE_RESERVATIONS' as const };
         }
 
-        const { isActive, ...details } = validation.data;
+        const { isActive, ...details } = input.data;
         transaction.assign(space, details);
         if (isActive !== undefined) space.isActive = isActive;
         await transaction.flush();

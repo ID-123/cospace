@@ -1,12 +1,16 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { errorResponse } from '@/features/auth/http';
-import { createAccessToken, REFRESH_COOKIE } from '@/features/auth/token';
+import {
+  createAccessToken,
+  REFRESH_COOKIE,
+  REFRESH_TOKEN_SECONDS,
+} from '@/features/auth/token';
 import {
   clearSessionCookies,
   hashRefreshToken,
-  REFRESH_TOKEN_SECONDS,
   setSessionCookies,
+  verifyRefreshToken,
 } from '@/features/auth/session';
 import type { RefreshToken } from '@/database/entities/user';
 import { getEntityClass, getOrm } from '@/database/orm';
@@ -16,6 +20,13 @@ export async function POST(): Promise<NextResponse> {
   const refreshToken = cookieStore.get(REFRESH_COOKIE)?.value;
 
   if (!refreshToken) {
+    const response = errorResponse(401, 'UNAUTHENTICATED', 'Inicia sesión.');
+    clearSessionCookies(response);
+    return response;
+  }
+
+  const refreshUserId = await verifyRefreshToken(refreshToken);
+  if (!refreshUserId) {
     const response = errorResponse(401, 'UNAUTHENTICATED', 'Inicia sesión.');
     clearSessionCookies(response);
     return response;
@@ -35,6 +46,7 @@ export async function POST(): Promise<NextResponse> {
       !tokenRecord ||
       tokenRecord.revokedAt ||
       tokenRecord.expiresAt <= new Date() ||
+      tokenRecord.user.id !== refreshUserId ||
       !tokenRecord.user.isActive
     ) {
       if (tokenRecord && !tokenRecord.revokedAt) {
