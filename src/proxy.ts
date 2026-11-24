@@ -36,6 +36,9 @@ function responseWithCookies(
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const pathname = request.nextUrl.pathname;
+  if (pathname === "/dashboard" || pathname === "/admin") {
+    console.info("[PROXY URL]", request.url);
+  }
   if (pathname === "/api/auth/refresh") {
     return NextResponse.next();
   }
@@ -47,15 +50,14 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   let forwardedRequestHeaders: Headers | undefined;
 
   if (!session && refreshToken) {
+    const refreshUrl = new URL("/api/auth/refresh", request.url);
+    console.info("Session refresh target:", refreshUrl.origin);
     try {
-      const refreshResponse = await fetch(
-        new URL("/api/auth/refresh", request.url),
-        {
-          method: "POST",
-          headers: { cookie: `${REFRESH_COOKIE}=${refreshToken}` },
-          cache: "no-store",
-        },
-      );
+      const refreshResponse = await fetch(refreshUrl, {
+        method: "POST",
+        headers: { cookie: `${REFRESH_COOKIE}=${refreshToken}` },
+        cache: "no-store",
+      });
 
       refreshedCookies = refreshResponse.headers.getSetCookie();
 
