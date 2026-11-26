@@ -72,6 +72,7 @@ async function SpaceDetail({ params }: SpaceDetailPageProps) {
               <strong>
                 <LocalizedPrice amount={space.pricePerHour} />
               </strong>
+              <span>this is a test</span>
             </p>
           </div>
         </section>
