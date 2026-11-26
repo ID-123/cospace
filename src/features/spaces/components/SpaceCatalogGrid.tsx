@@ -21,18 +21,17 @@ export function SpaceCatalogGrid({ spaces }: { spaces: ActiveSpace[] }) {
 
   return (
     <>
-      <div className="space-search">
-        <label className="visually-hidden" htmlFor="space-search">
-          {t("searchSpaces")}
-        </label>
-        <input
-          id="space-search"
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.currentTarget.value)}
-          placeholder={t("searchSpacesPlaceholder")}
-        />
-      </div>
+      <label className="visually-hidden" htmlFor="space-search">
+        {t("searchSpaces")}
+      </label>
+      <input
+        className="space-search"
+        id="space-search"
+        type="search"
+        value={query}
+        onChange={(event) => setQuery(event.currentTarget.value)}
+        placeholder={t("searchSpacesPlaceholder")}
+      />
 
       {filteredSpaces.length === 0 ? (
         <p className="space-catalog__empty" role="status">

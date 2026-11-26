@@ -6,11 +6,9 @@
 }
 
 .space-search {
-  margin-top: 1.5rem;
-}
-
-.space-search input {
+  display: block;
   width: 100%;
+  margin-top: 1.5rem;
   min-height: 3rem;
   padding: 0.75rem 1rem;
   color: var(--color-foreground);
@@ -20,7 +18,7 @@
   font: inherit;
 }
 
-.space-search input:focus-visible {
+.space-search:focus-visible {
   outline: 3px solid rgb(55 114 255 / 40%);
   outline-offset: 2px;
 }
