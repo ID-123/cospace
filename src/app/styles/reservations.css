@@ -48,6 +48,21 @@
   margin: 0 0 0.45rem;
 }
 
+.reservation-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.reservation-list__success {
+  margin: 0;
+  padding: 0.75rem;
+  color: var(--color-success);
+  background: var(--color-success-background);
+  border-radius: 0.5rem;
+}
+
 .reservation-card__cancel {
   padding: 0.65rem 0.9rem;
   color: var(--color-error);

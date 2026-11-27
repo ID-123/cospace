@@ -44,6 +44,7 @@ export async function GET(): Promise<NextResponse> {
         durationHours: reservation.durationHours,
         totalPrice: reservation.totalPrice,
         status: reservation.status,
+        canDelete: reservation.status === "cancelled",
         canCancel:
           reservation.status === "confirmed" &&
           (user.role === "admin" ||

@@ -10,6 +10,7 @@ import {
 } from "react";
 import { useLocale } from "@/components/shared/LocaleProvider";
 import { LocalizedPrice } from "@/components/shared/LocalizedPrice";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 
 type Space = {
   id: string;
@@ -50,6 +51,8 @@ export function SpaceManagement() {
   const [mutatingSpaceIds, setMutatingSpaceIds] = useState<Set<string>>(
     new Set(),
   );
+  const [pendingDelete, setPendingDelete] = useState<Space | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "active" | "inactive"
@@ -198,6 +201,45 @@ export function SpaceManagement() {
     }
   }
 
+  async function deleteSpace() {
+    if (!pendingDelete || isDeleting) return;
+
+    setIsDeleting(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    setMutatingSpaceIds((current) => new Set(current).add(pendingDelete.id));
+    try {
+      const response = await fetch(`/api/spaces/${pendingDelete.id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const result = (await response.json()) as ApiError;
+        setErrorMessage(
+          result.error?.code === "SPACE_MUST_BE_INACTIVE"
+            ? t("deleteInactiveSpaceOnly")
+            : result.error?.code === "SPACE_HAS_RESERVATIONS"
+              ? t("deleteSpaceWithReservations")
+              : (result.error?.message ?? t("deleteSpaceError")),
+        );
+        return;
+      }
+
+      setSuccessMessage(t("spaceDeleted"));
+      setPendingDelete(null);
+      if (editingSpace?.id === pendingDelete.id) setEditingSpace(null);
+      await loadSpaces();
+    } catch {
+      setErrorMessage(t("connectionError"));
+    } finally {
+      setIsDeleting(false);
+      setMutatingSpaceIds((current) => {
+        const next = new Set(current);
+        if (pendingDelete) next.delete(pendingDelete.id);
+        return next;
+      });
+    }
+  }
+
   const filteredSpaces = useMemo(() => {
     const query = searchQuery.trim().toLocaleLowerCase();
     return spaces.filter((space) => {
@@ -246,204 +288,226 @@ export function SpaceManagement() {
   }
 
   return (
-    <section className="space-management" aria-label={t("spaceManagement")}>
-      <div className="space-management__toolbar">
-        <h2>{t("registeredSpaces")}</h2>
-        <div className="space-management__toolbar-controls">
-          <label className="space-management__search">
-            <span className="visually-hidden">{t("searchSpaces")}</span>
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(event) => {
-                setSearchQuery(event.currentTarget.value);
-                setVisibleCount(5);
-              }}
-              placeholder={t("searchSpacesPlaceholder")}
-            />
-          </label>
-          <div
-            className="space-management__filters"
-            aria-label={t("filterSpaces")}
-          >
-            {(["all", "active", "inactive"] as const).map((filter) => (
-              <button
-                key={filter}
-                type="button"
-                className={`space-management__filter${statusFilter === filter ? " is-selected" : ""}`}
-                aria-pressed={statusFilter === filter}
-                onClick={() => {
-                  setStatusFilter(filter);
+    <>
+      <section className="space-management" aria-label={t("spaceManagement")}>
+        <div className="space-management__toolbar">
+          <h2>{t("registeredSpaces")}</h2>
+          <div className="space-management__toolbar-controls">
+            <label className="space-management__search">
+              <span className="visually-hidden">{t("searchSpaces")}</span>
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => {
+                  setSearchQuery(event.currentTarget.value);
                   setVisibleCount(5);
                 }}
-              >
-                {filter === "all"
-                  ? t("allSpaces")
-                  : filter === "active"
-                    ? t("active")
-                    : t("inactive")}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="space-management__columns">
-        <form
-          ref={formRef}
-          key={editingSpace?.id ?? "new-space"}
-          className="space-management__form"
-          onSubmit={handleSubmit}
-        >
-          <h2>{editingSpace ? t("editSpace") : t("createSpace")}</h2>
-          <label>
-            {t("spaceName")}
-            <input
-              name="name"
-              defaultValue={formSpace.name}
-              minLength={2}
-              maxLength={100}
-              required
-            />
-          </label>
-          <label>
-            {t("description")}
-            <textarea
-              name="description"
-              defaultValue={formSpace.description}
-              maxLength={255}
-              rows={3}
-              required
-            />
-          </label>
-          <div className="space-management__form-row">
-            <label>
-              {t("type")}
-              <select name="type" defaultValue={formSpace.type} required>
-                <option value="desk">{t("desk")}</option>
-                <option value="meeting_room">{t("meetingRoom")}</option>
-                <option value="booth">{t("booth")}</option>
-              </select>
-            </label>
-            <label>
-              {t("capacity")}
-              <input
-                name="capacity"
-                type="number"
-                min={1}
-                max={500}
-                defaultValue={formSpace.capacity}
-                required
+                placeholder={t("searchSpacesPlaceholder")}
               />
             </label>
-            <label>
-              {t("hourlyPrice")}
-              <input
-                name="pricePerHour"
-                type="number"
-                min={1}
-                max={536_870_911}
-                step={1}
-                defaultValue={formSpace.pricePerHour}
-                required
-              />
-            </label>
-          </div>
-          {errorMessage ? (
-            <p className="auth-form__error" role="alert">
-              {errorMessage}
-            </p>
-          ) : null}
-          {successMessage ? (
-            <p className="space-management__success" role="status">
-              {successMessage}
-            </p>
-          ) : null}
-          <div className="space-management__form-actions">
-            <button
-              className="auth-form__submit"
-              type="submit"
-              disabled={isSaving}
+            <div
+              className="space-management__filters"
+              aria-label={t("filterSpaces")}
             >
-              {isSaving
-                ? t("saving")
-                : editingSpace
-                  ? t("saveChanges")
-                  : t("createSpace")}
-            </button>
-            {editingSpace ? (
-              <button
-                className="space-management__secondary"
-                type="button"
-                onClick={() => setEditingSpace(null)}
-              >
-                {t("cancelEdit")}
-              </button>
-            ) : null}
-          </div>
-        </form>
-
-        <div className="space-management__list">
-          {isLoading ? <p>{t("loadingAdminSpaces")}</p> : null}
-          {!isLoading && filteredSpaces.length === 0 ? (
-            <p className="account-page__empty">{t("noRegisteredSpaces")}</p>
-          ) : null}
-          <div className="space-management__list-scroll">
-            {visibleSpaces.map((space) => (
-              <article
-                className={`space-management__item${editingSpace?.id === space.id ? " is-editing" : ""}`}
-                key={space.id}
-              >
-                <div className="space-management__details">
-                  <div>
-                    <h3>{space.name}</h3>
-                    <span
-                      className={`space-management__status${space.isActive ? " is-active" : ""}`}
-                    >
-                      {space.isActive ? t("active") : t("inactive")}
-                    </span>
-                  </div>
-                  <p>{space.description}</p>
-                  <p>
-                    {t(
-                      space.type === "desk"
-                        ? "desk"
-                        : space.type === "meeting_room"
-                          ? "meetingRoom"
-                          : "booth",
-                    )}{" "}
-                    · {space.capacity}{" "}
-                    {space.capacity === 1 ? t("person") : t("people")} · $
-                    <LocalizedPrice amount={space.pricePerHour} />{" "}
-                    {t("perHour")}
-                  </p>
-                </div>
-                <div className="space-management__item-actions">
-                  <button
-                    className="space-management__secondary"
-                    type="button"
-                    onClick={() => startEditing(space)}
-                  >
-                    {t("edit")}
-                  </button>
-                  <button
-                    className="space-management__secondary"
-                    type="button"
-                    disabled={mutatingSpaceIds.has(space.id)}
-                    onClick={() => void toggleActive(space)}
-                  >
-                    {mutatingSpaceIds.has(space.id)
-                      ? t("saving")
-                      : space.isActive
-                        ? t("deactivate")
-                        : t("activate")}
-                  </button>
-                </div>
-              </article>
-            ))}
-            <div ref={listEndRef} aria-hidden="true" />
+              {(["all", "active", "inactive"] as const).map((filter) => (
+                <button
+                  key={filter}
+                  type="button"
+                  className={`space-management__filter${statusFilter === filter ? " is-selected" : ""}`}
+                  aria-pressed={statusFilter === filter}
+                  onClick={() => {
+                    setStatusFilter(filter);
+                    setVisibleCount(5);
+                  }}
+                >
+                  {filter === "all"
+                    ? t("allSpaces")
+                    : filter === "active"
+                      ? t("active")
+                      : t("inactive")}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+        <div className="space-management__columns">
+          <form
+            ref={formRef}
+            key={editingSpace?.id ?? "new-space"}
+            className="space-management__form"
+            onSubmit={handleSubmit}
+          >
+            <h2>{editingSpace ? t("editSpace") : t("createSpace")}</h2>
+            <label>
+              {t("spaceName")}
+              <input
+                name="name"
+                defaultValue={formSpace.name}
+                minLength={2}
+                maxLength={100}
+                required
+              />
+            </label>
+            <label>
+              {t("description")}
+              <textarea
+                name="description"
+                defaultValue={formSpace.description}
+                maxLength={255}
+                rows={3}
+                required
+              />
+            </label>
+            <div className="space-management__form-row">
+              <label>
+                {t("type")}
+                <select name="type" defaultValue={formSpace.type} required>
+                  <option value="desk">{t("desk")}</option>
+                  <option value="meeting_room">{t("meetingRoom")}</option>
+                  <option value="booth">{t("booth")}</option>
+                </select>
+              </label>
+              <label>
+                {t("capacity")}
+                <input
+                  name="capacity"
+                  type="number"
+                  min={1}
+                  max={500}
+                  defaultValue={formSpace.capacity}
+                  required
+                />
+              </label>
+              <label>
+                {t("hourlyPrice")}
+                <input
+                  name="pricePerHour"
+                  type="number"
+                  min={1}
+                  max={536_870_911}
+                  step={1}
+                  defaultValue={formSpace.pricePerHour}
+                  required
+                />
+              </label>
+            </div>
+            {errorMessage ? (
+              <p className="auth-form__error" role="alert">
+                {errorMessage}
+              </p>
+            ) : null}
+            {successMessage ? (
+              <p className="space-management__success" role="status">
+                {successMessage}
+              </p>
+            ) : null}
+            <div className="space-management__form-actions">
+              <button
+                className="auth-form__submit"
+                type="submit"
+                disabled={isSaving}
+              >
+                {isSaving
+                  ? t("saving")
+                  : editingSpace
+                    ? t("saveChanges")
+                    : t("createSpace")}
+              </button>
+              {editingSpace ? (
+                <button
+                  className="space-management__secondary"
+                  type="button"
+                  onClick={() => setEditingSpace(null)}
+                >
+                  {t("cancelEdit")}
+                </button>
+              ) : null}
+            </div>
+          </form>
+
+          <div className="space-management__list">
+            {isLoading ? <p>{t("loadingAdminSpaces")}</p> : null}
+            {!isLoading && filteredSpaces.length === 0 ? (
+              <p className="account-page__empty">{t("noRegisteredSpaces")}</p>
+            ) : null}
+            <div className="space-management__list-scroll">
+              {visibleSpaces.map((space) => (
+                <article
+                  className={`space-management__item${editingSpace?.id === space.id ? " is-editing" : ""}`}
+                  key={space.id}
+                >
+                  <div className="space-management__details">
+                    <div>
+                      <h3>{space.name}</h3>
+                      <span
+                        className={`space-management__status${space.isActive ? " is-active" : ""}`}
+                      >
+                        {space.isActive ? t("active") : t("inactive")}
+                      </span>
+                    </div>
+                    <p>{space.description}</p>
+                    <p>
+                      {t(
+                        space.type === "desk"
+                          ? "desk"
+                          : space.type === "meeting_room"
+                            ? "meetingRoom"
+                            : "booth",
+                      )}{" "}
+                      · {space.capacity}{" "}
+                      {space.capacity === 1 ? t("person") : t("people")} · $
+                      <LocalizedPrice amount={space.pricePerHour} />{" "}
+                      {t("perHour")}
+                    </p>
+                  </div>
+                  <div className="space-management__item-actions">
+                    <button
+                      className="space-management__secondary"
+                      type="button"
+                      onClick={() => startEditing(space)}
+                    >
+                      {t("edit")}
+                    </button>
+                    <button
+                      className="space-management__secondary"
+                      type="button"
+                      disabled={mutatingSpaceIds.has(space.id)}
+                      onClick={() => void toggleActive(space)}
+                    >
+                      {mutatingSpaceIds.has(space.id)
+                        ? t("saving")
+                        : space.isActive
+                          ? t("deactivate")
+                          : t("activate")}
+                    </button>
+                    {!space.isActive ? (
+                      <button
+                        className="space-management__delete"
+                        type="button"
+                        disabled={mutatingSpaceIds.has(space.id)}
+                        onClick={() => setPendingDelete(space)}
+                      >
+                        {t("delete")}
+                      </button>
+                    ) : null}
+                  </div>
+                </article>
+              ))}
+              <div ref={listEndRef} aria-hidden="true" />
+            </div>
+          </div>
+        </div>
+      </section>
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={t("deleteSpaceTitle")}
+        description={t("deleteSpaceDescription")}
+        confirmLabel={t("delete")}
+        cancelLabel={t("keepSpace")}
+        isLoading={isDeleting}
+        onConfirm={() => void deleteSpace()}
+        onCancel={() => setPendingDelete(null)}
+      />
+    </>
   );
 }

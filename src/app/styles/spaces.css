@@ -321,6 +321,24 @@
   background: var(--color-background);
 }
 
+.space-management__delete,
+.reservation-card__delete {
+  min-height: 2.75rem;
+  padding: 0.65rem 0.9rem;
+  color: var(--color-error);
+  background: transparent;
+  border: 1px solid var(--color-error);
+  border-radius: 0.55rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.space-management__delete:hover,
+.reservation-card__delete:hover {
+  background: var(--color-error-background);
+}
+
 .space-management__success {
   margin: 0;
   color: var(--color-success);

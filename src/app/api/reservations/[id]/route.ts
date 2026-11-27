@@ -11,6 +11,76 @@ type ReservationRouteContext = {
   params: Promise<{ id: string }>;
 };
 
+export async function DELETE(
+  _request: Request,
+  { params }: ReservationRouteContext,
+): Promise<NextResponse> {
+  const access = await requireUser("autenticar la eliminación de reserva");
+  if ("response" in access) return access.response;
+  const { user } = access;
+
+  const routeParams = await params;
+  const idValidation = z.uuid().safeParse(routeParams.id);
+  if (!idValidation.success) {
+    return errorResponse(
+      404,
+      "RESERVATION_NOT_FOUND",
+      "No se encontró esa reserva.",
+    );
+  }
+  const id: string = idValidation.data ?? "";
+
+  try {
+    const orm = await getOrm();
+    const em = orm.em.fork();
+    const reservationEntity = getEntityClass<Reservation>(em, "Reservation");
+    const result = await em.transactional(
+      async (transaction) => {
+        const reservation = await transaction.findOne(
+          reservationEntity,
+          { id },
+          { lockMode: LockMode.PESSIMISTIC_WRITE },
+        );
+
+        if (
+          !reservation ||
+          (user.role !== "admin" && reservation.user.id !== user.id)
+        ) {
+          return { error: "RESERVATION_NOT_FOUND" as const };
+        }
+        if (reservation.status !== "cancelled") {
+          return { error: "RESERVATION_NOT_CANCELLED" as const };
+        }
+
+        transaction.remove(reservation);
+        await transaction.flush();
+        return { deleted: true as const, id };
+      },
+      { clear: true },
+    );
+
+    if ("error" in result) {
+      if (result.error === "RESERVATION_NOT_FOUND") {
+        return errorResponse(404, result.error, "No se encontró esa reserva.");
+      }
+      return errorResponse(
+        409,
+        "RESERVATION_NOT_CANCELLED",
+        "Solo puedes eliminar reservas canceladas del historial.",
+      );
+    }
+
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error("Could not delete reservation:", error);
+    return errorResponse(
+      500,
+      "INTERNAL_ERROR",
+      "No se pudo eliminar la reserva.",
+    );
+  }
+}
+
 export async function PATCH(
   _request: Request,
   { params }: ReservationRouteContext,
@@ -19,14 +89,16 @@ export async function PATCH(
   if ("response" in access) return access.response;
   const { user } = access;
 
-  const { id } = await params;
-  if (!z.uuid().safeParse(id).success) {
+  const routeParams = await params;
+  const idValidation = z.uuid().safeParse(routeParams.id);
+  if (!idValidation.success) {
     return errorResponse(
       404,
       "RESERVATION_NOT_FOUND",
       "No se encontró esa reserva.",
     );
   }
+  const id: string = idValidation.data ?? "";
 
   try {
     const orm = await getOrm();
@@ -87,7 +159,7 @@ export async function PATCH(
       }
     }
 
-    return NextResponse.json({ cancelled: true, id: result.reservationId });
+    return NextResponse.json({ cancelled: true, id });
   } catch (error) {
     console.error("Could not cancel reservation:", error);
     return errorResponse(

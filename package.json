@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1177.0",
-    "@mikro-orm/core": "7.2.5",
-    "@mikro-orm/postgresql": "^7.2.11",
+    "@mikro-orm/core": "7.2.11",
+    "@mikro-orm/postgresql": "7.2.11",
     "bcryptjs": "^3.0.3",
     "dotenv": "^18.0.10",
     "jose": "^6.2.18",
@@ -29,8 +29,8 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@mikro-orm/cli": "^7.2.11",
-    "@mikro-orm/migrations": "^7.2.11",
+    "@mikro-orm/cli": "7.2.11",
+    "@mikro-orm/migrations": "7.2.11",
     "@tailwindcss/turbopack": "^4.3.5",
     "@types/node": "^20.19.43",
     "@types/react": "^19.3.3",

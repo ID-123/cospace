@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLocale } from "@/components/shared/LocaleProvider";
 import { LocalizedPrice } from "@/components/shared/LocalizedPrice";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 
 type ReservationItem = {
   id: string;
@@ -16,6 +17,7 @@ type ReservationItem = {
   totalPrice: number;
   status: "confirmed" | "cancelled";
   canCancel: boolean;
+  canDelete: boolean;
 };
 
 type ApiError = {
@@ -41,7 +43,12 @@ export function ReservationList() {
   );
   const [reservations, setReservations] = useState<ReservationItem[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingDelete, setPendingDelete] = useState<ReservationItem | null>(
+    null,
+  );
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchReservations =
     useCallback(async (): Promise<ReservationsLoadResult> => {
@@ -117,46 +124,100 @@ export function ReservationList() {
     }
   }
 
+  async function deleteReservation() {
+    if (!pendingDelete || isDeleting) return;
+
+    setIsDeleting(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    try {
+      const response = await fetch(`/api/reservations/${pendingDelete.id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const result = (await response.json()) as ApiError;
+        setErrorMessage(result.error?.message ?? t("deleteReservationError"));
+        return;
+      }
+
+      setSuccessMessage(t("reservationDeleted"));
+      setPendingDelete(null);
+      await loadReservations();
+    } catch {
+      setErrorMessage(t("connectionError"));
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
   if (isLoading) return <p>{t("loadingReservations")}</p>;
 
   return (
-    <section className="reservation-list" aria-label={t("reservationsTitle")}>
-      {errorMessage ? (
-        <p className="auth-form__error" role="alert">
-          {errorMessage}
-        </p>
-      ) : null}
-      {reservations.length === 0 ? (
-        <p className="account-page__empty">{t("noReservations")}</p>
-      ) : (
-        reservations.map((reservation) => (
-          <article className="reservation-card" key={reservation.id}>
-            <div>
-              <h2>{reservation.space.name}</h2>
-              <p>
-                {bogotaDateTime.format(new Date(reservation.startsAt))} –{" "}
-                {bogotaDateTime.format(new Date(reservation.endsAt))}
-              </p>
-              <p>
-                {reservation.durationHours} h ·{" "}
-                <LocalizedPrice amount={reservation.totalPrice} /> ·{" "}
-                {reservation.status === "confirmed"
-                  ? t("confirmed")
-                  : t("cancelled")}
-              </p>
-            </div>
-            {reservation.canCancel ? (
-              <button
-                type="button"
-                className="reservation-card__cancel"
-                onClick={() => void cancelReservation(reservation.id)}
-              >
-                {t("cancelReservation")}
-              </button>
-            ) : null}
-          </article>
-        ))
-      )}
-    </section>
+    <>
+      <section className="reservation-list" aria-label={t("reservationsTitle")}>
+        {errorMessage ? (
+          <p className="auth-form__error" role="alert">
+            {errorMessage}
+          </p>
+        ) : null}
+        {successMessage ? (
+          <p className="reservation-list__success" role="status">
+            {successMessage}
+          </p>
+        ) : null}
+        {reservations.length === 0 ? (
+          <p className="account-page__empty">{t("noReservations")}</p>
+        ) : (
+          reservations.map((reservation) => (
+            <article className="reservation-card" key={reservation.id}>
+              <div>
+                <h2>{reservation.space.name}</h2>
+                <p>
+                  {bogotaDateTime.format(new Date(reservation.startsAt))} –{" "}
+                  {bogotaDateTime.format(new Date(reservation.endsAt))}
+                </p>
+                <p>
+                  {reservation.durationHours} h ·{" "}
+                  <LocalizedPrice amount={reservation.totalPrice} /> ·{" "}
+                  {reservation.status === "confirmed"
+                    ? t("confirmed")
+                    : t("cancelled")}
+                </p>
+              </div>
+              <div className="reservation-card__actions">
+                {reservation.canCancel ? (
+                  <button
+                    type="button"
+                    className="reservation-card__cancel"
+                    onClick={() => void cancelReservation(reservation.id)}
+                  >
+                    {t("cancelReservation")}
+                  </button>
+                ) : null}
+                {reservation.canDelete ? (
+                  <button
+                    type="button"
+                    className="reservation-card__delete"
+                    onClick={() => setPendingDelete(reservation)}
+                  >
+                    {t("deleteReservation")}
+                  </button>
+                ) : null}
+              </div>
+            </article>
+          ))
+        )}
+      </section>
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={t("deleteReservationTitle")}
+        description={t("deleteReservationDescription")}
+        confirmLabel={t("deleteReservation")}
+        cancelLabel={t("keepReservation")}
+        isLoading={isDeleting}
+        onConfirm={() => void deleteReservation()}
+        onCancel={() => setPendingDelete(null)}
+      />
+    </>
   );
 }

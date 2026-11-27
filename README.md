@@ -8,7 +8,7 @@ servidor.
 ## Requisitos previos
 
 - Node.js 22 o superior.
-- pnpm 12.15.0 (se puede activar con `corepack enable`).
+- pnpm 12.23.0 (declara el campo `packageManager` del proyecto y se puede activar con `corepack enable`).
 - Una base de datos PostgreSQL. Para la prueba se recomienda crear un proyecto
   en Supabase y usar su cadena de conexión PostgreSQL.
 - Docker, solo si se va a ejecutar la imagen de producción.
@@ -29,11 +29,19 @@ Copia `.env.example` como `.env` y completa estas variables:
 | `ADMIN_FIRST_NAME`         | Nombre del administrador (opcional; valor predeterminado: `Administrador`).                                                                                                            |
 | `ADMIN_LAST_NAME`          | Apellido del administrador (opcional; valor predeterminado: `CoSpace`).                                                                                                                |
 | `ADMIN_PHONE`              | Teléfono del administrador (opcional; valor predeterminado: `0000000000`).                                                                                                             |
+| `AWS_REGION`               | Región de AWS utilizada por el cliente S3 opcional. Valor de ejemplo: `us-east-1`.                                                                                                     |
+| `S3_BUCKET_NAME`           | Nombre del bucket S3 usado por la funcionalidad opcional de carga de imágenes.                                                                                                         |
 
 El refresh token es un JWT firmado y de uso revocable: solo se guarda su hash
 SHA-256 en la base de datos junto con su fecha de vencimiento. Los tokens se
 transportan en cookies `httpOnly`, `sameSite=lax` y con `secure` habilitado en
 producción; sus duraciones se controlan mediante las variables indicadas.
+
+Para cargas a S3 fuera de AWS (por ejemplo, en un entorno local), el SDK puede
+usar `AWS_ACCESS_KEY_ID` y `AWS_SECRET_ACCESS_KEY` estándar mediante su cadena
+de credenciales. Son opcionales si la ejecución se realiza en un entorno que
+ya proporciona una función o credenciales IAM. No las incluyas en el
+repositorio ni las expongas al navegador.
 
 ## Ejecución en desarrollo
 
@@ -79,8 +87,11 @@ El correo y contraseña de administrador son los configurados en `ADMIN_EMAIL` y
 - El saludo de la barra de navegación abre el perfil, donde se pueden actualizar
   los datos personales y cambiar la contraseña.
 - Cancelar cambia el estado a `cancelled`; no elimina el registro.
-- Un espacio se desactiva, nunca se elimina. No se puede desactivar mientras
-  tenga reservas futuras confirmadas.
+- Un espacio se desactiva antes de eliminarlo. El administrador solo puede
+  eliminarlo permanentemente si está inactivo y no tiene reservas registradas.
+  No se puede desactivar mientras tenga reservas futuras confirmadas.
+- Las reservas canceladas pueden retirarse permanentemente del historial por su
+  usuario propietario; las reservas confirmadas deben cancelarse primero.
 
 Estas reglas se validan en los route handlers y en las transacciones de base de
 datos, no solo en los formularios.
@@ -120,6 +131,8 @@ contenedor en tiempo de ejecución; no se copian a la imagen.
 | `pnpm db:migrate`    | Aplica las migraciones pendientes.                   |
 | `pnpm db:seed`       | Crea el administrador y los espacios de ejemplo.     |
 | `pnpm db:seed:admin` | Alias histórico del seed completo.                   |
+| `pnpm format-all`    | Aplica el formato de Prettier a todos los archivos.  |
+| `pnpm check-format`  | Comprueba si los archivos cumplen el formato.        |
 
 ## Estructura principal
 
@@ -146,6 +159,26 @@ Las páginas y endpoints de `app/` conectan las rutas con cada funcionalidad;
 las reglas y sus componentes viven juntos en `features/`. Los componentes
 compartidos entre varias funcionalidades se mantienen en `components/shared/`.
 
+## API disponible
+
+| Área              | Endpoints principales                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Autenticación     | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/logout` y `GET /api/auth/session` |
+| Cuenta            | `PATCH /api/account/profile` y `PATCH /api/account/password`                                                                   |
+| Espacios públicos | `GET /api/spaces`                                                                                                              |
+| Administración    | `GET/POST /api/admin/spaces`, `PATCH/DELETE /api/spaces/[id]`                                                                  |
+| Reservas          | `GET/POST /api/reservations` y `PATCH/DELETE /api/reservations/[id]`                                                           |
+
+Los endpoints validan el cuerpo de la petición, la sesión y el rol en el
+servidor. Las respuestas de error usan un formato consistente y estados HTTP
+como `400`, `401`, `403`, `404` y `409`.
+
 ## Despliegue
 
-Actualmente desplegada utilizando Vercel y Supabase en [cospace-opal.vercel.app](https://cospace-opal.vercel.app)
+La aplicación está desplegada con Vercel y utiliza Supabase como PostgreSQL:
+[cospace-opal.vercel.app](https://cospace-opal.vercel.app).
+
+En el proyecto de Vercel se deben configurar las mismas variables de entorno
+que se usan localmente, incluyendo `DATABASE_URL`, los secretos JWT y las
+variables del administrador. Antes del primer arranque, ejecuta las migraciones
+y el seed contra la base de datos de Supabase desde un entorno de desarrollo.
